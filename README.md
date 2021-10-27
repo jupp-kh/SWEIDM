@@ -1,0 +1,3 @@
+# SWEIDMT_WS2022_YOUSSEF_KHARITA
+
+Softwareentwicklung in der Medizintechnik WS2022
