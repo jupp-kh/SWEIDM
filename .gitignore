@@ -1,0 +1,15 @@
+/app/debug
+/app/release
+/app/Makefile.SWE_SS2021.Release
+/app/Makefile.SWE_SS2021
+/app/Makefile.SWE_SS2021.Debug
+/MyLib/debug
+/MyLib/release
+/MyLib/Makefile.Release
+/MyLib/Makefile
+/MyLib/Makefile.Debug
+*.pro.user
+*.pro.user.*
+*.raw
+Makefile
+*ui_*.h
