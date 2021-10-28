@@ -23,7 +23,6 @@ private:
     short* image_3d;
     int windowing(int HU_value, int startValue, int windowWidth, int &greyValue);
     void updateSliceView();
-    void updateSchichtView();
 
 
 

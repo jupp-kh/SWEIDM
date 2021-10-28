@@ -71,7 +71,7 @@ void Widget::load_3d(){
     int iNumberBytesRead = dataFile.read((char*)image_3d, 512*512*130*sizeof(short));
     if (iFileSize != iNumberBytesRead){QMessageBox::critical(this, "ACHTUNG", "Überlauf");return;}
     dataFile.close();
-    updateSchichtView();
+    updateSliceView();
 }
 void Widget::updatedWindowingStart(int value){
     ui->label_start->setText("Start: " + QString::number(value));
@@ -83,24 +83,9 @@ void Widget::updatedWindowingWidth(int value){
 }
 void Widget::updatedschichtnummer(int value){
     ui->label_schicht->setText("schicht:" + QString::number(value));
-    updateSchichtView();
+    updateSliceView();
 }
-void Widget::updateSchichtView(){
-    QImage image(512,512,QImage::Format_RGB32);
-    image.fill(qRgb(0,0,0));
-    int x, y, iGrauwert ;
-    for (int index = 0; index<512*512; index++) {
-        windowing(image_3d[index+(ui->verticalSlider_schichten->value()*512*512)],
-                              ui->horizontalSlide_start->value(),
-                              ui->horizontalSlider_width->value(),
-                              iGrauwert);
 
-        x = index % 512;
-        y = index / 512;
-        image.setPixel(x,y ,qRgb(iGrauwert, iGrauwert, iGrauwert));
-    }
-    ui->label->setPixmap(QPixmap::fromImage(image));
-}
 void Widget::updateSliceView(){
     QElapsedTimer timer;
     timer.start();
