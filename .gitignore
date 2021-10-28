@@ -12,4 +12,5 @@
 *.pro.user.*
 *.raw
 Makefile
+.qmake.stash
 *ui_*.h
