@@ -3,7 +3,7 @@
 #include "QFile"
 #include "QElapsedTimer"
 #include "QDebug"
-
+#include "mylib.h"
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -11,10 +11,11 @@ Widget::Widget(QWidget *parent)
 {
     image_3d = new short[512*512*130];
     m_ptiefenkarte = new short[512*512];
+    shadedBuffer = new short[512*512];
     ui->setupUi(this);
     connect(ui->pushButton_8bit, SIGNAL(clicked()),this,SLOT(Malebild()));
     connect(ui->pushButton_12bit, SIGNAL(clicked()),this,SLOT(load_12bit()));
-    connect(ui->pushButton_tiefenkarte, SIGNAL(clicked()),this,SLOT(tiefenKarte()));
+    connect(ui->pushButton_tiefenkarte, SIGNAL(clicked()),this,SLOT(render3D()));
     connect(ui->pushButton_3d, SIGNAL(clicked()),this,SLOT(load_3d()));
     connect(ui->horizontalSlide_start,SIGNAL(valueChanged(int)),this,SLOT(updatedWindowingStart(int)));
     connect(ui->horizontalSlider_width,SIGNAL(valueChanged(int)),this,SLOT(updatedWindowingWidth(int)));
@@ -28,6 +29,7 @@ Widget::~Widget()
     delete ui;
     delete [] image_3d;
     delete [] m_ptiefenkarte;
+    delete [] shadedBuffer;
 }
 
 void Widget::Malebild(){
@@ -91,7 +93,7 @@ void Widget::updatedschichtnummer(int value){
     updateSliceView();
 }
 void Widget::updatedschwellenwert(int value){
-    ui->label_schwellenwert->setText("schwellenwert:" + QString::number(value));
+    ui->label_schwellenwert->setText("render3D:" + QString::number(value));
     updateSliceView();
 }
 
@@ -100,9 +102,9 @@ void Widget::updateSliceView(){
     // timer.start();
     QImage image(512,512,QImage::Format_RGB32);
     image.fill(qRgb(0,0,0));
-    int x, y, iGrauwert ;
+    int x, y, iGrauwert;
     for (int index = 0; index<512*512; index++) {
-         if  (windowing(image_3d[index+(ui->verticalSlider_schichten->value()*512*512)],
+         if  (MyLib::windowing(image_3d[index+(ui->verticalSlider_schichten->value()*512*512)],
                               ui->horizontalSlide_start->value(),
                               ui->horizontalSlider_width->value(),
                               iGrauwert)!= 0) qDebug() <<"falshe wert empfangen";
@@ -120,61 +122,30 @@ void Widget::updateSliceView(){
     ui->label->setPixmap(QPixmap::fromImage(image));
    // qDebug()<<timer.nsecsElapsed();
 }
-int Widget::windowing( int HU_value,  int startValue, int windowWidth, int &greyValue){
-    // prüfe parm auf out_of_range
-    if (HU_value <-1024 || HU_value> 3071) return 1;
-    if (startValue< -1024 || startValue > 3071) return 2;
-    if (windowWidth <1 || windowWidth> 4095) return  3;
 
-    if (HU_value< startValue){
-        greyValue = 0;
-        return 0;
-    }
-    if (HU_value > startValue+windowWidth){
-        greyValue = 255;
-        return 0;
-    }
-    greyValue = (HU_value-startValue)*(255.0/windowWidth);
-    return 0;
-}
 
 bool Widget::segmentierung( int HU_value,int schwellenwert){
     if (HU_value > schwellenwert) return true;
     return false ;
 }
 
-void Widget::tiefenKarte(){
-    calculateDepthBuffer(image_3d,512,512,129,ui->horizontalSlider_schwellenwert->value(),m_ptiefenkarte);
+
+void Widget::render3D(){
+    //rechne den tiefen karte
+    MyLib::calculateDepthBuffer(image_3d,512,512,130,ui->horizontalSlider_schwellenwert->value(),m_ptiefenkarte);
+    MyLib::renderDepthBuffer(m_ptiefenkarte, 512, 512, shadedBuffer);
     QImage image(512,512,QImage::Format_RGB32);
     image.fill(qRgb(0,0,0));
     int x,y,iGrauwert;
     for (int index = 0;index <512*512 ;index++) {
         // rechne index vom bild
-        iGrauwert = m_ptiefenkarte[index];
+        iGrauwert = shadedBuffer[index];
         y = index / 512;
         x = index % 512;
     image.setPixel(x,y ,qRgb(iGrauwert, iGrauwert, iGrauwert));
 }
-ui->label->setPixmap(QPixmap::fromImage(image));
+ui->label_3D->setPixmap(QPixmap::fromImage(image));
 }
 
-/* width,height,layers bestimmt der größer des Datensatz
- * threashold ist das schwellenwert
- * diese function ist zu berechnen von die tiefe damit das bild 3d
- * angezeigt wird.
- * der geht die daten satz durch und shaut nach an welche layers ist die schwellenwert zu treffen
- * und speichert die tife in die array depthBuffer
-*/
-int Widget::calculateDepthBuffer(short* inputData,int width, int height, int layers, int threashold,short* depthBuffer){
-    for(int index = 0; index < width*height ; index++){
-        depthBuffer[index] = 0;
-        for(int x = layers;x > 0; x--){
-            if(segmentierung(inputData[index+(x*width*height)],threashold)){
-                // wertebereich 0 - layers
-                depthBuffer[index] = x;
-                break;
-            }
-        }
-    }
-    return  0;
-}
+
+

@@ -486,7 +486,9 @@ release/widget.o: widget.cpp widget.h \
 		ui_widget.h \
 		../../Qt/5.14.2/mingw73_64/include/QtCore/QElapsedTimer \
 		../../Qt/5.14.2/mingw73_64/include/QtCore/qelapsedtimer.h \
-		../../Qt/5.14.2/mingw73_64/include/QtCore/QDebug
+		../../Qt/5.14.2/mingw73_64/include/QtCore/QDebug \
+		../MyLib/mylib.h \
+		../MyLib/MyLib_global.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\widget.o widget.cpp
 
 release/moc_widget.o: release/moc_widget.cpp 
