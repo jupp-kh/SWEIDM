@@ -35,6 +35,7 @@ void MyLibUnitTest::windowingTest()
     // equivalence classes, output based:
     // linear function, therefore test two sample points
 
+    //windowing( int HU_value,  int startValue, int windowWidth, int &greyValue)
     // VALID case 1: testing clean zero for bottom HU boundary
     int returnedVal = 1;
     int returnCode  = 0;
@@ -84,6 +85,20 @@ void MyLibUnitTest::windowingTest()
     returnCode  = 0;
     returnCode = CTDataset::windowing(  100,  1024,  4096, returnedVal);
     QVERIFY2(returnCode == 3, "No error code returned although window width > 4095");
+
+    // VALID case 7: HU input greater than HU start + HU window widht
+    returnedVal = 1;
+    returnCode  = 0;
+    returnCode = CTDataset::windowing(  71 ,   -30,   100, returnedVal);
+    QVERIFY2(returnCode  == 0, "returns an error although input is valid");
+    QVERIFY2(returnedVal == 255, "windowing function upper bound");
+
+    // VALID case 7: HU input greater than HU start + HU window widht
+    returnedVal = 1;
+    returnCode  = 0;
+    returnCode = CTDataset::windowing(  -71 ,   -30,   100, returnedVal);
+    QVERIFY2(returnCode  == 0, "returns an error although input is valid");
+    QVERIFY2(returnedVal == 0, "windowing function lower bound");
 
 }
 
