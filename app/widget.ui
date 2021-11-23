@@ -29,38 +29,12 @@
     <string/>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_8bit">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>540</y>
-     <width>81</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>load 8_bit</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton_12bit">
-   <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>540</y>
-     <width>81</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>load 12_bit</string>
-   </property>
-  </widget>
   <widget class="QSlider" name="horizontalSlide_start">
    <property name="geometry">
     <rect>
-     <x>390</x>
+     <x>209</x>
      <y>540</y>
-     <width>160</width>
+     <width>341</width>
      <height>22</height>
     </rect>
    </property>
@@ -77,9 +51,9 @@
   <widget class="QSlider" name="horizontalSlider_width">
    <property name="geometry">
     <rect>
-     <x>390</x>
+     <x>209</x>
      <y>570</y>
-     <width>160</width>
+     <width>341</width>
      <height>22</height>
     </rect>
    </property>
@@ -99,7 +73,7 @@
   <widget class="QLabel" name="label_start">
    <property name="geometry">
     <rect>
-     <x>316</x>
+     <x>150</x>
      <y>540</y>
      <width>71</width>
      <height>20</height>
@@ -112,7 +86,7 @@
   <widget class="QLabel" name="label_width">
    <property name="geometry">
     <rect>
-     <x>316</x>
+     <x>150</x>
      <y>570</y>
      <width>71</width>
      <height>20</height>
@@ -125,8 +99,8 @@
   <widget class="QPushButton" name="pushButton_3d">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>540</y>
+     <x>50</x>
+     <y>560</y>
      <width>75</width>
      <height>41</height>
     </rect>

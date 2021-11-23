@@ -418,6 +418,8 @@ debug/tst_mylibunittest.moc: tst_mylibunittest.cpp \
 		../../Qt/5.14.2/mingw73_64/include/QtTest/qttestversion.h \
 		../MyLib/mylib.h \
 		../MyLib/MyLib_global.h \
+		../MyLib/ctdataset.h \
+		../../Qt/5.14.2/mingw73_64/include/QtCore/QFile \
 		debug/moc_predefs.h \
 		../../Qt/5.14.2/mingw73_64/bin/moc.exe
 	C:\Users\youss\Desktop\code\Qt\5.14.2\mingw73_64\bin\moc.exe $(DEFINES) --include C:/Users/youss/Desktop/code/sweidmt_ws2022_youssef_kharita/MyLibUnitTest/debug/moc_predefs.h -IC:/Users/youss/Desktop/code/Qt/5.14.2/mingw73_64/mkspecs/win32-g++ -IC:/Users/youss/Desktop/code/sweidmt_ws2022_youssef_kharita/MyLibUnitTest -IC:/Users/youss/Desktop/code/sweidmt_ws2022_youssef_kharita/MyLib -IC:/Users/youss/Desktop/code/sweidmt_ws2022_youssef_kharita/eigen -IC:/Users/youss/Desktop/code/Qt/5.14.2/mingw73_64/include -IC:/Users/youss/Desktop/code/Qt/5.14.2/mingw73_64/include/QtTest -IC:/Users/youss/Desktop/code/Qt/5.14.2/mingw73_64/include/QtCore -IC:/Users/youss/Desktop/code/Qt/Tools/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++ -IC:/Users/youss/Desktop/code/Qt/Tools/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/x86_64-w64-mingw32 -IC:/Users/youss/Desktop/code/Qt/Tools/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/backward -IC:/Users/youss/Desktop/code/Qt/Tools/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include -IC:/Users/youss/Desktop/code/Qt/Tools/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include-fixed -IC:/Users/youss/Desktop/code/Qt/Tools/mingw730_64/x86_64-w64-mingw32/include tst_mylibunittest.cpp -o debug\tst_mylibunittest.moc
@@ -743,6 +745,8 @@ debug/tst_mylibunittest.o: tst_mylibunittest.cpp ../../Qt/5.14.2/mingw73_64/incl
 		../../Qt/5.14.2/mingw73_64/include/QtTest/qttestversion.h \
 		../MyLib/mylib.h \
 		../MyLib/MyLib_global.h \
+		../MyLib/ctdataset.h \
+		../../Qt/5.14.2/mingw73_64/include/QtCore/QFile \
 		debug/tst_mylibunittest.moc
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\tst_mylibunittest.o tst_mylibunittest.cpp
 

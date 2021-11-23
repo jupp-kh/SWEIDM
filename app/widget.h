@@ -5,11 +5,14 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <ctdataset.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
 QT_END_NAMESPACE
-
+/**
+    *hallo world
+*/
 class Widget : public QWidget
 {
     Q_OBJECT
@@ -20,19 +23,16 @@ public:
 
 private:
     Ui::Widget *ui;
-    short* image_3d;
-    short* m_ptiefenkarte;
     short* shadedBuffer;
    // int windowing(int HU_value, int startValue, int windowWidth, int &greyValue);
     bool segmentierung( int HU_value, int schwellenwert);
     void updateSliceView();
     int calculateDepthBuffer(short* inputData,int width, int height, int layers, int threashold,short* depthBuffer);
-
-
+    CTDataset dataset;
 
 private slots:
-    void Malebild();
-    void load_12bit();
+    //void Malebild();
+    //void load_12bit();
     void load_3d();
     void updatedWindowingStart(int value);
     void updatedWindowingWidth(int value);
@@ -40,4 +40,5 @@ private slots:
     void updatedschwellenwert(int value);
     void render3D();
 };
+
 #endif // WIDGET_H

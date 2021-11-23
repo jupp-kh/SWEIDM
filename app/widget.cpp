@@ -1,20 +1,23 @@
+
+
+
 #include "widget.h"
 #include "ui_widget.h"
 #include "QFile"
 #include "QElapsedTimer"
 #include "QDebug"
 #include "mylib.h"
-
+/**
+ * hallow world
+*/
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
 {
-    image_3d = new short[512*512*130];
-    m_ptiefenkarte = new short[512*512];
     shadedBuffer = new short[512*512];
     ui->setupUi(this);
-    connect(ui->pushButton_8bit, SIGNAL(clicked()),this,SLOT(Malebild()));
-    connect(ui->pushButton_12bit, SIGNAL(clicked()),this,SLOT(load_12bit()));
+    //connect(ui->pushButton_8bit, SIGNAL(clicked()),this,SLOT(Malebild()));
+    //connect(ui->pushButton_12bit, SIGNAL(clicked()),this,SLOT(load_12bit()));
     connect(ui->pushButton_tiefenkarte, SIGNAL(clicked()),this,SLOT(render3D()));
     connect(ui->pushButton_3d, SIGNAL(clicked()),this,SLOT(load_3d()));
     connect(ui->horizontalSlide_start,SIGNAL(valueChanged(int)),this,SLOT(updatedWindowingStart(int)));
@@ -27,11 +30,9 @@ Widget::Widget(QWidget *parent)
 Widget::~Widget()
 {
     delete ui;
-    delete [] image_3d;
-    delete [] m_ptiefenkarte;
     delete [] shadedBuffer;
 }
-
+/*
 void Widget::Malebild(){
     QImage image(512,512,QImage::Format_RGB32);
     image.fill(qRgb(0,0,0));
@@ -56,29 +57,33 @@ void Widget::Malebild(){
 }
 
 void Widget::load_12bit(){
-    // einen roten Pixel
-    // POSITION, rot,grün,blau
+
+    // open File Dialog to select dataset
     QString imagePath = QFileDialog::getOpenFileName(this, "Open Image", "./", "Raw Image Files (*.raw)");
     QFile dataFile(imagePath);
     bool bFileOpen = dataFile.open(QIODevice::ReadOnly);
     if (!bFileOpen){QMessageBox::critical(this, "ACHTUNG", "Datei konnte nicht geöffnet werden");return;}
     int iFileSize = dataFile.size();
-    int iNumberBytesRead = dataFile.read((char*)image_3d, 512*512*sizeof(short));
+    int iNumberBytesRead = dataFile.read((char*)dataset.data(), 512*512*sizeof(short));
     if (iFileSize != iNumberBytesRead){QMessageBox::critical(this, "ACHTUNG", "Überlauf");return;}
     dataFile.close();
     updateSliceView();
-}
+}*/
 
 void Widget::load_3d(){
+
+    // open File Dialog to select dataset
     QString imagePath = QFileDialog::getOpenFileName(this, "Open Image", "./", "Raw Image Files (*.raw)");
-    QFile dataFile(imagePath);
-    bool bFileOpen = dataFile.open(QIODevice::ReadOnly);
-    if (!bFileOpen){QMessageBox::critical(this, "ACHTUNG", "Datei konnte nicht geöffnet werden");return;}
-    int iFileSize = dataFile.size();
-    int iNumberBytesRead = dataFile.read((char*)image_3d, 512*512*130*sizeof(short));
-    if (iFileSize != iNumberBytesRead){QMessageBox::critical(this, "ACHTUNG", "Überlauf");return;}
-    dataFile.close();
-    updateSliceView();
+
+    //try to load
+    int iErrorCode = dataset.load(imagePath);
+
+    if (iErrorCode == 0)
+        updateSliceView();
+    else if (iErrorCode == 1 )
+        QMessageBox::critical(this, "ACHTUNG", "File Not Found");
+    else
+        QMessageBox::critical(this, "ACHTUNG", "inconsisten File size");
 }
 void Widget::updatedWindowingStart(int value){
     ui->label_start->setText("Start: " + QString::number(value));
@@ -104,14 +109,14 @@ void Widget::updateSliceView(){
     image.fill(qRgb(0,0,0));
     int x, y, iGrauwert;
     for (int index = 0; index<512*512; index++) {
-         if  (MyLib::windowing(image_3d[index+(ui->verticalSlider_schichten->value()*512*512)],
+         if  (CTDataset::windowing(dataset.data()[index+(ui->verticalSlider_schichten->value()*512*512)],
                               ui->horizontalSlide_start->value(),
                               ui->horizontalSlider_width->value(),
                               iGrauwert)!= 0) qDebug() <<"falshe wert empfangen";
          // rechne index vom bild
          y = index / 512;
          x = index % 512;
-         if(segmentierung(image_3d[index+(ui->verticalSlider_schichten->value()*512*512)],ui->horizontalSlider_schwellenwert->value())){
+         if(segmentierung(dataset.data()[index+(ui->verticalSlider_schichten->value()*512*512)],ui->horizontalSlider_schwellenwert->value())){
              image.setPixel(x,y,qRgb(255,0,0));
              continue;
          }
@@ -132,14 +137,14 @@ bool Widget::segmentierung( int HU_value,int schwellenwert){
 
 void Widget::render3D(){
     //rechne den tiefen karte
-    MyLib::calculateDepthBuffer(image_3d,512,512,130,ui->horizontalSlider_schwellenwert->value(),m_ptiefenkarte);
-    MyLib::renderDepthBuffer(m_ptiefenkarte, 512, 512, shadedBuffer);
+    dataset.calculateDepthBuffer(ui->horizontalSlider_schwellenwert->value());
+    dataset.renderDepthBuffer(shadedBuffer);
     QImage image(512,512,QImage::Format_RGB32);
     image.fill(qRgb(0,0,0));
     int x,y,iGrauwert;
     for (int index = 0;index <512*512 ;index++) {
         // rechne index vom bild
-        iGrauwert = shadedBuffer[index];
+        iGrauwert =shadedBuffer[index];
         y = index / 512;
         x = index % 512;
     image.setPixel(x,y ,qRgb(iGrauwert, iGrauwert, iGrauwert));
