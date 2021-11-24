@@ -18,8 +18,9 @@ Widget::Widget(QWidget *parent)
     ui->setupUi(this);
     //connect(ui->pushButton_8bit, SIGNAL(clicked()),this,SLOT(Malebild()));
     //connect(ui->pushButton_12bit, SIGNAL(clicked()),this,SLOT(load_12bit()));
-    connect(ui->pushButton_tiefenkarte, SIGNAL(clicked()),this,SLOT(render3D()));
-    connect(ui->pushButton_3d, SIGNAL(clicked()),this,SLOT(load_3d()));
+    connect(ui->pushButton_render3d, SIGNAL(clicked()),this,SLOT(render3D()));
+    connect(ui->pushButton_load3d, SIGNAL(clicked()),this,SLOT(load_3d()));
+    connect(ui->pushButton_test, SIGNAL(clicked()),this,SLOT(erzeugeTestData()));
     connect(ui->horizontalSlide_start,SIGNAL(valueChanged(int)),this,SLOT(updatedWindowingStart(int)));
     connect(ui->horizontalSlider_width,SIGNAL(valueChanged(int)),this,SLOT(updatedWindowingWidth(int)));
     connect(ui->horizontalSlider_schwellenwert,SIGNAL(valueChanged(int)),this,SLOT(updatedschwellenwert(int)));
@@ -70,11 +71,29 @@ void Widget::load_12bit(){
     updateSliceView();
 }*/
 
+void Widget::erzeugeTestData(){
+    short * testdataset = dataset.data();
+    for (int x = 0; x < 100; ++x) {
+        for (int y = 0; y < 100; ++y) {
+                for (int index = 0; index < 130; ++index ) {
+                    testdataset[(index *512*512) +(x+(y*512))] = -1024;
+                    if(index == 125 && x != 1 && y != 1 ){
+                        testdataset[(index * 512*512)+(x+(512*y))] = 3071;
+                    }
+            }
+
+        }
+    }
+    QFile dataFile( QFileDialog::getSaveFileName(this, "save Image", "./", "Raw Image Files (*.raw)"));
+    dataFile.open(QIODevice::WriteOnly);
+    dataFile.write((char*)testdataset, 512*512*130*sizeof(short));
+    dataFile.close();
+}
 void Widget::load_3d(){
 
     // open File Dialog to select dataset
     QString imagePath = QFileDialog::getOpenFileName(this, "Open Image", "./", "Raw Image Files (*.raw)");
-
+    qDebug()<<imagePath;
     //try to load
     int iErrorCode = dataset.load(imagePath);
 

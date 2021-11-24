@@ -13,6 +13,7 @@ public:
 
 private Q_SLOTS:
    void windowingTest();
+   void calculateDepthBuffertest();
 
 };
 
@@ -91,18 +92,44 @@ void MyLibUnitTest::windowingTest()
     returnCode  = 0;
     returnCode = CTDataset::windowing(  71 ,   -30,   100, returnedVal);
     QVERIFY2(returnCode  == 0, "returns an error although input is valid");
-    QVERIFY2(returnedVal == 255, "windowing function upper bound");
+    QVERIFY2(returnedVal == 255,  qPrintable(QString("returnedval, was %1 expected 255").arg(returnedVal)));
 
     // VALID case 7: HU input greater than HU start + HU window widht
     returnedVal = 1;
     returnCode  = 0;
     returnCode = CTDataset::windowing(  -71 ,   -30,   100, returnedVal);
     QVERIFY2(returnCode  == 0, "returns an error although input is valid");
-    QVERIFY2(returnedVal == 0, "windowing function lower bound");
+    QVERIFY2(returnedVal == 0, qPrintable(QString("input is greater than the sum of width+start, was %1 expected 0").arg(returnedVal)));
 
 }
 
+void MyLibUnitTest::calculateDepthBuffertest(){
+    //  UNVALID case 1 calculateDepthBuffer with out a dataset
+    CTDataset test;
+    int returnedVal = test.calculateDepthBuffer(0);
+     QVERIFY2(returnedVal == 1, "data ist nicht geloded");
 
+
+     test.load("C:/Users/youss/Desktop/code/sweidmt_ws2022_youssef_kharita/image/testdata.raw");
+     // UNVALID case 2 threashhold too low or tow low
+     returnedVal = test.calculateDepthBuffer(-2000);
+     QVERIFY2(returnedVal == 2, "threashold lower bound");
+
+
+     // UNVALID case 3 threashhold too low or tow high
+     returnedVal = test.calculateDepthBuffer(4000);
+     QVERIFY2(returnedVal == 2, "threashold upper bound");
+
+    // VALID case 1 vergleiche die returend value
+    returnedVal = test.calculateDepthBuffer(0);
+    QVERIFY2(test.depthBuffer()[0] == 4, qPrintable( QString("tiefenBUffer an der stelle [0],%1 expected 4").arg(test.depthBuffer()[0]) ));
+    QVERIFY2(returnedVal == 0, "returen value ist richtug");
+
+    // VALID case 2 no value greater than threashold
+    returnedVal = test.calculateDepthBuffer(0);
+    QVERIFY2(test.depthBuffer()[1] == 129, qPrintable( QString("tiefenBUffer an der stelle [1] wobei kein Wert den threashold überschreitet ,%1 expected 129").arg(test.depthBuffer()[1]) ));
+    QVERIFY2(returnedVal == 0, "returen value ist richtug");
+}
 QTEST_APPLESS_MAIN(MyLibUnitTest)
 
 #include "tst_mylibunittest.moc"

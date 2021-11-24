@@ -39,6 +39,7 @@ private slots:
     void updatedschichtnummer(int value);
     void updatedschwellenwert(int value);
     void render3D();
+    void erzeugeTestData();
 };
 
 #endif // WIDGET_H

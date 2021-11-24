@@ -9,6 +9,7 @@ public:
     CTDataset();
     int load(QString imagePath);
     short* data();
+    short* depthBuffer();
 
 
     ~CTDataset();
@@ -20,7 +21,8 @@ public:
 private:
     short* m_pImageData;
     int width,height,layers;
-    short* depthBuffer;
+    short* tiefenBuffer;
+    bool loaded;
 };
 
 #endif // CTDATASET_H
