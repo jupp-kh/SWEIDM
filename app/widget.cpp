@@ -14,10 +14,9 @@ Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
 {
+    mouseEventAcc = false;
     shadedBuffer = new short[512*512];
     ui->setupUi(this);
-    //connect(ui->pushButton_8bit, SIGNAL(clicked()),this,SLOT(Malebild()));
-    //connect(ui->pushButton_12bit, SIGNAL(clicked()),this,SLOT(load_12bit()));
     connect(ui->pushButton_render3d, SIGNAL(clicked()),this,SLOT(render3D()));
     connect(ui->pushButton_load3d, SIGNAL(clicked()),this,SLOT(load_3d()));
     connect(ui->pushButton_test, SIGNAL(clicked()),this,SLOT(erzeugeTestData()));
@@ -33,44 +32,29 @@ Widget::~Widget()
     delete ui;
     delete [] shadedBuffer;
 }
-/*
-void Widget::Malebild(){
-    QImage image(512,512,QImage::Format_RGB32);
-    image.fill(qRgb(0,0,0));
-    // einen roten Pixel
-    // POSITION, rot,grün,blau
-    char imageData[512*512];
-    QString imagePath = QFileDialog::getOpenFileName(this, "Open Image", "./", "Raw Image Files (*.raw)");
-    QFile dataFile(imagePath);
-    bool bFileOpen = dataFile.open(QIODevice::ReadOnly);
-    if (!bFileOpen){QMessageBox::critical(this, "ACHTUNG", "Datei konnte nicht geöffnet werden");return;}
-    int iFileSize = dataFile.size();
-    int iNumberBytesRead = dataFile.read(imageData, 512*512);
-    if (iFileSize != iNumberBytesRead){QMessageBox::critical(this, "ACHTUNG","speicher überlauf");return;}
-    dataFile.close();
-    for (int index = 0; index<512*512; index++) {
-        int iGrauwert = imageData[index];
-        int x = index % 512;
-        int y = index / 512;
-        image.setPixel(x,y ,qRgb(iGrauwert, iGrauwert, iGrauwert));
+void Widget::mousePressEvent(QMouseEvent *event){
+    // kurse position(x,y) in die qt fienster
+    QPoint globalPos = event->pos();
+    // kurse position(x,y) im 3d_label
+    QPoint localPos3D = ui->label_3D->mapFromParent(globalPos);
+
+    // kurse position(x,y) im 2d_label
+    QPoint localPos2D = ui->label_2D->mapFromParent(globalPos);
+
+    // prüfe ob die kurse sich im label3D befindet
+    if (ui->label_3D->rect().contains(localPos3D) && mouseEventAcc){
+        ui->label_x->setText("x_Pos: " + QString::number(localPos3D.x()));
+        ui->label_y->setText("y_Pos: " + QString::number(localPos3D.y()));
+        ui->label_z->setText("z_Pos: " + QString::number(dataset.depthBuffer()[localPos3D.y() * 512 + localPos3D.x()]+1));
     }
-    ui->label->setPixmap(QPixmap::fromImage(image));
+    // prüfe ob die kurse sich im lable2D  befindet
+    if(ui->label_2D->rect().contains(localPos2D)){
+        ui->label_x->setText("x_Pos: " + QString::number(localPos2D.x()));
+        ui->label_y->setText("y_Pos: " + QString::number(localPos2D.y()));
+        ui->label_z->setText("z_Pos: " + QString::number(ui->verticalSlider_schichten->value()+1));
+    }
+
 }
-
-void Widget::load_12bit(){
-
-    // open File Dialog to select dataset
-    QString imagePath = QFileDialog::getOpenFileName(this, "Open Image", "./", "Raw Image Files (*.raw)");
-    QFile dataFile(imagePath);
-    bool bFileOpen = dataFile.open(QIODevice::ReadOnly);
-    if (!bFileOpen){QMessageBox::critical(this, "ACHTUNG", "Datei konnte nicht geöffnet werden");return;}
-    int iFileSize = dataFile.size();
-    int iNumberBytesRead = dataFile.read((char*)dataset.data(), 512*512*sizeof(short));
-    if (iFileSize != iNumberBytesRead){QMessageBox::critical(this, "ACHTUNG", "Überlauf");return;}
-    dataFile.close();
-    updateSliceView();
-}*/
-
 void Widget::erzeugeTestData(){
     short * testdataset = dataset.data();
     for (int x = 0; x < 100; ++x) {
@@ -93,7 +77,7 @@ void Widget::load_3d(){
 
     // open File Dialog to select dataset
     QString imagePath = QFileDialog::getOpenFileName(this, "Open Image", "./", "Raw Image Files (*.raw)");
-    qDebug()<<imagePath;
+
     //try to load
     int iErrorCode = dataset.load(imagePath);
 
@@ -113,7 +97,7 @@ void Widget::updatedWindowingWidth(int value){
     updateSliceView();
 }
 void Widget::updatedschichtnummer(int value){
-    ui->label_schicht->setText("schicht:" + QString::number(value));
+    ui->label_schicht->setText("schicht:" + QString::number(value + 1 ));
     updateSliceView();
 }
 void Widget::updatedschwellenwert(int value){
@@ -143,7 +127,7 @@ void Widget::updateSliceView(){
 
         image.setPixel(x,y ,qRgb(iGrauwert, iGrauwert, iGrauwert));
     }
-    ui->label->setPixmap(QPixmap::fromImage(image));
+    ui->label_2D->setPixmap(QPixmap::fromImage(image));
    // qDebug()<<timer.nsecsElapsed();
 }
 
@@ -157,6 +141,7 @@ bool Widget::segmentierung( int HU_value,int schwellenwert){
 void Widget::render3D(){
     //rechne den tiefen karte
     dataset.calculateDepthBuffer(ui->horizontalSlider_schwellenwert->value());
+    mouseEventAcc = true;
     dataset.renderDepthBuffer(shadedBuffer);
     QImage image(512,512,QImage::Format_RGB32);
     image.fill(qRgb(0,0,0));

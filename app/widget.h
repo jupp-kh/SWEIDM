@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <ctdataset.h>
+#include <QMouseEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -29,6 +30,7 @@ private:
     void updateSliceView();
     int calculateDepthBuffer(short* inputData,int width, int height, int layers, int threashold,short* depthBuffer);
     CTDataset dataset;
+    bool mouseEventAcc;
 
 private slots:
     //void Malebild();
@@ -40,6 +42,7 @@ private slots:
     void updatedschwellenwert(int value);
     void render3D();
     void erzeugeTestData();
+    void mousePressEvent(QMouseEvent *event);
 };
 
 #endif // WIDGET_H

@@ -223,6 +223,7 @@ release/moc_widget.cpp: widget.h \
 		../../Qt/5.14.2/mingw73_64/include/QtWidgets/qmessagebox.h \
 		../MyLib/ctdataset.h \
 		../MyLib/MyLib_global.h \
+		../../Qt/5.14.2/mingw73_64/include/QtGui/QMouseEvent \
 		release/moc_predefs.h \
 		../../Qt/5.14.2/mingw73_64/bin/moc.exe
 	C:\Users\youss\Desktop\code\Qt\5.14.2\mingw73_64\bin\moc.exe $(DEFINES) --include C:/Users/youss/Desktop/code/sweidmt_ws2022_youssef_kharita/app/release/moc_predefs.h -IC:/Users/youss/Desktop/code/Qt/5.14.2/mingw73_64/mkspecs/win32-g++ -IC:/Users/youss/Desktop/code/sweidmt_ws2022_youssef_kharita/app -IC:/Users/youss/Desktop/code/sweidmt_ws2022_youssef_kharita/eigen -IC:/Users/youss/Desktop/code/sweidmt_ws2022_youssef_kharita/MyLib -IC:/Users/youss/Desktop/code/Qt/5.14.2/mingw73_64/include -IC:/Users/youss/Desktop/code/Qt/5.14.2/mingw73_64/include/QtWidgets -IC:/Users/youss/Desktop/code/Qt/5.14.2/mingw73_64/include/QtGui -IC:/Users/youss/Desktop/code/Qt/5.14.2/mingw73_64/include/QtANGLE -IC:/Users/youss/Desktop/code/Qt/5.14.2/mingw73_64/include/QtCore -IC:/Users/youss/Desktop/code/Qt/Tools/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++ -IC:/Users/youss/Desktop/code/Qt/Tools/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/x86_64-w64-mingw32 -IC:/Users/youss/Desktop/code/Qt/Tools/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/backward -IC:/Users/youss/Desktop/code/Qt/Tools/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include -IC:/Users/youss/Desktop/code/Qt/Tools/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include-fixed -IC:/Users/youss/Desktop/code/Qt/Tools/mingw730_64/x86_64-w64-mingw32/include widget.h -o release\moc_widget.cpp
@@ -365,6 +366,7 @@ release/main.o: main.cpp widget.h \
 		../../Qt/5.14.2/mingw73_64/include/QtWidgets/qmessagebox.h \
 		../MyLib/ctdataset.h \
 		../MyLib/MyLib_global.h \
+		../../Qt/5.14.2/mingw73_64/include/QtGui/QMouseEvent \
 		../../Qt/5.14.2/mingw73_64/include/QtWidgets/QApplication \
 		../../Qt/5.14.2/mingw73_64/include/QtWidgets/qapplication.h \
 		../../Qt/5.14.2/mingw73_64/include/QtCore/qcoreapplication.h \
@@ -489,6 +491,7 @@ release/widget.o: widget.cpp widget.h \
 		../../Qt/5.14.2/mingw73_64/include/QtWidgets/qmessagebox.h \
 		../MyLib/ctdataset.h \
 		../MyLib/MyLib_global.h \
+		../../Qt/5.14.2/mingw73_64/include/QtGui/QMouseEvent \
 		ui_widget.h \
 		../../Qt/5.14.2/mingw73_64/include/QtCore/QElapsedTimer \
 		../../Qt/5.14.2/mingw73_64/include/QtCore/qelapsedtimer.h \
