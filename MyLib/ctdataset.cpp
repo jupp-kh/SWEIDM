@@ -6,23 +6,34 @@
 CTDataset::CTDataset()
 {
     // Platzhalter für den Datensatz
-    m_pImageData = new short[512*512*130];
+    orginalldata = new short[512*512*130];
+
     // Platzhalter für das Zwischenergebnis der 3D_image-Berechnung
     tiefenBuffer = new short[512*512];
+
+    // Platzhalter für den gedrehten Datensatz
+    m_pRotated = new short[512*512*512];
+
     // check whether the data are loaded
     loaded = false;
-
-
+    m_pImageData = orginalldata;
+    m_Rot.setIdentity();
     //hardgecodet
     width = 512;
     height = 512;
+    end_width = 512;
+    end_height = 512;
+    start_width = 0;
+    start_height = 0;
     layers = 130;
+    //drehen(1,2,3);
 
 }
 
 CTDataset::~CTDataset(){
-    delete [] m_pImageData;
+    delete [] orginalldata;
     delete [] tiefenBuffer;
+    delete [] m_pRotated;
 }
 
 /**
@@ -32,7 +43,12 @@ CTDataset::~CTDataset(){
 short* CTDataset::data(){
     return m_pImageData;
 }
-
+/**
+ nimme die ursprünglische date */
+void CTDataset::rotateBack(){
+    m_pImageData = orginalldata;
+    layers = 130;
+}
 /**
   get methode für die private variabel depthbuffer
   @return den Tiefenkarte
@@ -50,7 +66,7 @@ int CTDataset::load(QString imagePath){
     bool bFileOpen = dataFile.open(QIODevice::ReadOnly);
     if (!bFileOpen){return 2;}
     int iFileSize = dataFile.size();
-    int iNumberBytesRead = dataFile.read((char*)m_pImageData, 512*512*130*sizeof(short));
+    int iNumberBytesRead = dataFile.read((char*)orginalldata, 512*512*130*sizeof(short));
     if (iFileSize != iNumberBytesRead){return 1;}
     dataFile.close();
     loaded = true;
@@ -80,6 +96,13 @@ int CTDataset::windowing( int HU_value,  int startValue, int windowWidth, int &g
     }
     greyValue = std::roundf((HU_value-startValue)*(255.0/windowWidth));
     return 0;
+}
+void CTDataset::corpping(const int start_x, const int start_y, const int end_x,const int end_y  ){
+    start_width = start_x;
+    start_height = start_y;
+    end_width = end_x;
+    end_height = end_y;
+
 }
 /** Mit dieser Funktion wird die Tiefe berechnet, damit das Bild in 3D angezeigt wird.
  *Sie geht durch den Datensatz und schaut, bei welchen Ebenen der Schwellenwert erreicht wird
@@ -130,4 +153,49 @@ int CTDataset::renderDepthBuffer(short *shadedBuffer){
        }
     }
     return  0;
+}
+
+void CTDataset::rotate(const int &threashold){
+    std::fill_n(m_pRotated, width*height*512, -1024);
+    Eigen::Vector3d a;
+    Eigen::Vector3d center(255.5,255.5,64.5);
+    for(int z = 0 ; z < layers ; z++){
+        for(int y = start_height ; y < end_height ; y++){
+            for(int x = start_width ; x < end_width ; x++){
+                a.x() = x;
+                a.y() = y;
+                a.z() = z;
+                a =  m_Rot * (a - center) + center  ;
+                if (a.x() < 0 || a.x() > 511) continue;
+                if (a.y() < 0 || a.y() > 511) continue;
+                if (a.y() < 0 || a.y() > 511) continue;
+
+                m_pRotated [(int)a.x()+ 512*(int)a.y() + 512*512*(int)a.z()  ] =  orginalldata[512*512*z + 512*y + x];
+
+            }
+        }
+    }
+
+    layers = 512;
+    m_pImageData = m_pRotated;
+    calculateDepthBuffer(threashold);
+}
+
+/**
+this funktion is to update the rotation matrix an store the value untel we use it
+@param xAngle rotation on the x axis
+@param yAngle rotation on the y axis
+@param zAngle rotation on the z axis
+*/
+
+void CTDataset::updateDrehMatrix(const int& x,const int& y,const int& z){
+     int xAngle = x;
+     int yAngle = y;
+     int zAngle = z;
+     if(xAngle > 180) xAngle  = 360 - xAngle;
+     if(yAngle > 180) yAngle  = 360 - yAngle;
+     if(zAngle > 180) zAngle  = 360 - yAngle;
+     m_Rot =  Eigen::AngleAxisd(xAngle/180.*M_PI, Eigen::Vector3d::UnitX()) * m_Rot;
+     m_Rot =  Eigen::AngleAxisd(yAngle/180.*M_PI, Eigen::Vector3d::UnitY()) * m_Rot;
+     m_Rot =  Eigen::AngleAxisd(zAngle/180.*M_PI, Eigen::Vector3d::UnitZ()) * m_Rot;
 }

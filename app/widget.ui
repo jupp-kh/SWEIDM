@@ -176,8 +176,8 @@
   <widget class="QPushButton" name="pushButton_render3d">
    <property name="geometry">
     <rect>
-     <x>650</x>
-     <y>550</y>
+     <x>620</x>
+     <y>540</y>
      <width>91</width>
      <height>41</height>
     </rect>
@@ -205,14 +205,14 @@
   <widget class="QPushButton" name="pushButton_test">
    <property name="geometry">
     <rect>
-     <x>650</x>
-     <y>600</y>
-     <width>161</width>
+     <x>460</x>
+     <y>590</y>
+     <width>91</width>
      <height>41</height>
     </rect>
    </property>
    <property name="text">
-    <string>test data erstellen</string>
+    <string>save image</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_x">
@@ -252,6 +252,148 @@
    </property>
    <property name="text">
     <string>z_pos:</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkBox_rotation">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>690</y>
+     <width>101</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>rotation</string>
+   </property>
+  </widget>
+  <widget class="QSlider" name="horizontalSlider_xaxis">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>580</y>
+     <width>251</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>360</number>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QSlider" name="horizontalSlider_yaxis">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>620</y>
+     <width>251</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>360</number>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QSlider" name="horizontalSlider_zaxis">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>660</y>
+     <width>251</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>360</number>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_back">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>590</y>
+     <width>91</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Zurückdrehen</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_crop">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>680</y>
+     <width>91</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Crop</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_xaxis">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>580</y>
+     <width>81</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>x_axis</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_yaxis">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>612</y>
+     <width>91</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>y_axis</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_zaxis">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>655</y>
+     <width>91</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>z_axis</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_crop">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>670</y>
+     <width>151</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>cropbetween:</string>
    </property>
   </widget>
  </widget>

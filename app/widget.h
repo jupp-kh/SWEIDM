@@ -21,7 +21,6 @@ class Widget : public QWidget
 public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
-
 private:
     Ui::Widget *ui;
     short* shadedBuffer;
@@ -30,7 +29,8 @@ private:
     void updateSliceView();
     int calculateDepthBuffer(short* inputData,int width, int height, int layers, int threashold,short* depthBuffer);
     CTDataset dataset;
-    bool mouseEventAcc;
+    bool tiefenBufferEx;
+    int xMousePress, yMousePress, xMouseRelease,yMouseRelease ;
 
 private slots:
     //void Malebild();
@@ -40,9 +40,13 @@ private slots:
     void updatedWindowingWidth(int value);
     void updatedschichtnummer(int value);
     void updatedschwellenwert(int value);
+    void updatedAxis();
+    void cropImage();
+    void rotateBack();
     void render3D();
     void erzeugeTestData();
     void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 };
 
 #endif // WIDGET_H

@@ -7,6 +7,7 @@
 #include "QElapsedTimer"
 #include "QDebug"
 #include "mylib.h"
+#include "cmath"
 /**
  * hallow world
 */
@@ -14,16 +15,21 @@ Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
 {
-    mouseEventAcc = false;
+    tiefenBufferEx = false;
     shadedBuffer = new short[512*512];
     ui->setupUi(this);
     connect(ui->pushButton_render3d, SIGNAL(clicked()),this,SLOT(render3D()));
     connect(ui->pushButton_load3d, SIGNAL(clicked()),this,SLOT(load_3d()));
     connect(ui->pushButton_test, SIGNAL(clicked()),this,SLOT(erzeugeTestData()));
+    connect(ui->pushButton_back, SIGNAL(clicked()),this,SLOT(rotateBack()));
+    connect(ui->pushButton_crop, SIGNAL(clicked()),this,SLOT(cropImage()));
     connect(ui->horizontalSlide_start,SIGNAL(valueChanged(int)),this,SLOT(updatedWindowingStart(int)));
     connect(ui->horizontalSlider_width,SIGNAL(valueChanged(int)),this,SLOT(updatedWindowingWidth(int)));
     connect(ui->horizontalSlider_schwellenwert,SIGNAL(valueChanged(int)),this,SLOT(updatedschwellenwert(int)));
     connect(ui->verticalSlider_schichten,SIGNAL(valueChanged(int)),this,SLOT(updatedschichtnummer(int)));
+    connect(ui->horizontalSlider_xaxis,SIGNAL(valueChanged(int)),this,SLOT(updatedAxis()));
+    connect(ui->horizontalSlider_yaxis,SIGNAL(valueChanged(int)),this,SLOT(updatedAxis()));
+    connect(ui->horizontalSlider_zaxis,SIGNAL(valueChanged(int)),this,SLOT(updatedAxis()));
 
 }
 
@@ -35,6 +41,7 @@ Widget::~Widget()
 void Widget::mousePressEvent(QMouseEvent *event){
     // kurse position(x,y) in die qt fienster
     QPoint globalPos = event->pos();
+    event->button();
     // kurse position(x,y) im 3d_label
     QPoint localPos3D = ui->label_3D->mapFromParent(globalPos);
 
@@ -42,9 +49,11 @@ void Widget::mousePressEvent(QMouseEvent *event){
     QPoint localPos2D = ui->label_2D->mapFromParent(globalPos);
 
     // prüfe ob die kurse sich im label3D befindet
-    if (ui->label_3D->rect().contains(localPos3D) && mouseEventAcc){
+    if (ui->label_3D->rect().contains(localPos3D) && tiefenBufferEx){
         ui->label_x->setText("x_Pos: " + QString::number(localPos3D.x()));
+        xMousePress = localPos3D.x();
         ui->label_y->setText("y_Pos: " + QString::number(localPos3D.y()));
+        yMousePress = localPos3D.y();
         ui->label_z->setText("z_Pos: " + QString::number(dataset.depthBuffer()[localPos3D.y() * 512 + localPos3D.x()]+1));
     }
     // prüfe ob die kurse sich im lable2D  befindet
@@ -55,6 +64,26 @@ void Widget::mousePressEvent(QMouseEvent *event){
     }
 
 }
+
+
+void Widget::mouseReleaseEvent(QMouseEvent *event){
+    // kurse position(x,y) in die qt fienster
+    QPoint globalPos = event->pos();
+    event->button();
+    // kurse position(x,y) im 3d_label
+    QPoint localPos3D = ui->label_3D->mapFromParent(globalPos);
+
+
+    // prüfe ob die kurse sich im label3D befindet
+    if (ui->label_3D->rect().contains(localPos3D) && tiefenBufferEx){
+        xMouseRelease = localPos3D.x();
+        yMouseRelease = localPos3D.y();
+    }
+    ui->label_crop->setText("cropbetween:"+ QString::number(xMousePress) +"__"+ QString::number(yMousePress) +"\n" +QString::number(xMouseRelease)+"__" + QString::number(yMouseRelease) );
+
+}
+
+
 void Widget::erzeugeTestData(){
     short * testdataset = dataset.data();
     for (int x = 0; x < 100; ++x) {
@@ -104,6 +133,12 @@ void Widget::updatedschwellenwert(int value){
     ui->label_schwellenwert->setText("render3D:" + QString::number(value));
     updateSliceView();
 }
+void Widget::updatedAxis(){
+    ui->label_xaxis->setText("x_axis: " + QString::number(ui->horizontalSlider_xaxis->value()));
+    ui->label_yaxis->setText("y_axis: " + QString::number(ui->horizontalSlider_yaxis->value()));
+    ui->label_zaxis->setText("z_axis: " + QString::number(ui->horizontalSlider_zaxis->value()));
+    dataset.updateDrehMatrix(ui->horizontalSlider_xaxis->value(),ui->horizontalSlider_yaxis->value(),ui->horizontalSlider_zaxis->value());
+}
 
 void Widget::updateSliceView(){
     //QElapsedTimer timer;
@@ -136,12 +171,27 @@ bool Widget::segmentierung( int HU_value,int schwellenwert){
     if (HU_value > schwellenwert) return true;
     return false ;
 }
+void Widget::cropImage(){
+    if(xMousePress >= 0 && yMousePress >= 0 && xMousePress < 512 && yMousePress <512 && xMouseRelease >= 0 && yMouseRelease >= 0 && xMouseRelease < 512 && yMouseRelease <512 ){
+       dataset.corpping(std::min(xMousePress,xMouseRelease),std::min(yMousePress,yMouseRelease),std::max(xMousePress,xMouseRelease),std::max(xMousePress,xMouseRelease));
+    }
+}
 
+// in diese funktion wird mit ein zeiger auf die orginal daten gezeigt
+void Widget::rotateBack(){
+    ui->verticalSlider_schichten->setMaximum(129);
+    dataset.rotateBack();
+}
 
 void Widget::render3D(){
     //rechne den tiefen karte
-    dataset.calculateDepthBuffer(ui->horizontalSlider_schwellenwert->value());
-    mouseEventAcc = true;
+    if (ui->checkBox_rotation->isChecked()){
+        ui->verticalSlider_schichten->setMaximum(511);
+        dataset.rotate(ui->horizontalSlider_schwellenwert->value());
+    }else{
+        dataset.calculateDepthBuffer(ui->horizontalSlider_schwellenwert->value());
+    }
+    tiefenBufferEx = true;
     dataset.renderDepthBuffer(shadedBuffer);
     QImage image(512,512,QImage::Format_RGB32);
     image.fill(qRgb(0,0,0));
