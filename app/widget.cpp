@@ -174,6 +174,8 @@ bool Widget::segmentierung( int HU_value,int schwellenwert){
 void Widget::cropImage(){
     if(xMousePress >= 0 && yMousePress >= 0 && xMousePress < 512 && yMousePress <512 && xMouseRelease >= 0 && yMouseRelease >= 0 && xMouseRelease < 512 && yMouseRelease <512 ){
        dataset.corpping(std::min(xMousePress,xMouseRelease),std::min(yMousePress,yMouseRelease),std::max(xMousePress,xMouseRelease),std::max(xMousePress,xMouseRelease));
+    }else{
+        QMessageBox::critical(this, "ACHTUNG", "please select a rectangle");
     }
 }
 

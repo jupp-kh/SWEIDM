@@ -159,16 +159,17 @@ void CTDataset::rotate(const int &threashold){
     std::fill_n(m_pRotated, width*height*512, -1024);
     Eigen::Vector3d a;
     Eigen::Vector3d center(255.5,255.5,64.5);
+    Eigen::Vector3d rotatV = m_Rot * (-center) + center;
     for(int z = 0 ; z < layers ; z++){
         for(int y = start_height ; y < end_height ; y++){
             for(int x = start_width ; x < end_width ; x++){
                 a.x() = x;
                 a.y() = y;
                 a.z() = z;
-                a =  m_Rot * (a - center) + center  ;
+                a =  m_Rot * a + rotatV  ;
                 if (a.x() < 0 || a.x() > 511) continue;
                 if (a.y() < 0 || a.y() > 511) continue;
-                if (a.y() < 0 || a.y() > 511) continue;
+                if (a.z() < 0 || a.z() > 511) continue;
 
                 m_pRotated [(int)a.x()+ 512*(int)a.y() + 512*512*(int)a.z()  ] =  orginalldata[512*512*z + 512*y + x];
 
