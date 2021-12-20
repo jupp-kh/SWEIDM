@@ -2,6 +2,7 @@
 #include "QFile"
 #include "cmath"
 #include "QDebug"
+#include "QElapsedTimer"
 
 CTDataset::CTDataset()
 {
@@ -13,6 +14,10 @@ CTDataset::CTDataset()
 
     // Platzhalter für den gedrehten Datensatz
     m_pRotated = new short[512*512*512];
+
+    maske = new bool[512*512];
+
+    std::fill_n(maske,512*512,true);
 
     // check whether the data are loaded
     loaded = false;
@@ -34,6 +39,7 @@ CTDataset::~CTDataset(){
     delete [] orginalldata;
     delete [] tiefenBuffer;
     delete [] m_pRotated;
+    delete [] maske;
 }
 
 /**
@@ -48,6 +54,11 @@ short* CTDataset::data(){
 void CTDataset::rotateBack(){
     m_pImageData = orginalldata;
     layers = 130;
+    std::fill_n(maske, width*height,true);
+    end_width = 512;
+    end_height = 512;
+    start_width = 0;
+    start_height = 0;
 }
 /**
   get methode für die private variabel depthbuffer
@@ -111,18 +122,24 @@ void CTDataset::corpping(const int start_x, const int start_y, const int end_x,c
  * @return fehler code.\n 0 : erfolgreich\n 1 : no data \n 2 : threashold bound fehler
 */
 int CTDataset::calculateDepthBuffer(const int &threashold){
+    QElapsedTimer timer;
+    timer.start();
+    int counter = 0;
     if(!loaded) return 1;
     if(threashold < -1024 || threashold >3071) return 2;
+    int x;
     for(int index = 0; index < width*height ; index++){
-        tiefenBuffer[index] = layers - 1 ;
-        for(int x = layers -1 ;x > 0; x--){
-            if(( m_pImageData[index+(x*width*height)]>=threashold)){
-                // wertebereich 0 - layers
-                tiefenBuffer[index] = layers - 1 -x;
-                break;
+        x = layers -1;
+        if(maske[index]){
+
+            while(  ( m_pImageData[index+(x*width*height)]<threashold)&& x > 0 ){
+               x--;
+               counter++;
             }
         }
+        tiefenBuffer[index] = layers - 1 -x;
     }
+    qDebug()<<"calculatedepthbuffer:"<<timer.nsecsElapsed()<<" count "<< counter;
     return  0;
 }
 /**
@@ -131,7 +148,9 @@ int CTDataset::calculateDepthBuffer(const int &threashold){
  * @return fehler code\n 0 : erfolgreich
 */
 int CTDataset::renderDepthBuffer(short *shadedBuffer){
-    /// t_* ist die tiefe
+    // t_* ist die tiefe
+    QElapsedTimer timer;
+    timer.start();
     int index,t_y,t_x;
     for(int y = 0 ; y <height; y++){
         for(int x = 0; x<width ;x++){
@@ -152,13 +171,20 @@ int CTDataset::renderDepthBuffer(short *shadedBuffer){
             shadedBuffer[index] = 255* (4/ sqrt(pow(2*t_x,2)+pow(2*t_y,2)+ 16));
        }
     }
+
+    qDebug()<<"randerDepthBuffer"<<timer.nsecsElapsed();
     return  0;
+
 }
 
 void CTDataset::rotate(const int &threashold){
+    QElapsedTimer timer;
+    timer.start();
+    int counter= 0;
+    std::fill_n(maske,width*height,false);
     std::fill_n(m_pRotated, width*height*512, -1024);
     Eigen::Vector3d a;
-    Eigen::Vector3d center(255.5,255.5,64.5);
+    Eigen::Vector3d center(start_width + (end_width - start_width)/2,start_height + (end_height-start_height)/2,layers/2);
     Eigen::Vector3d rotatV = m_Rot * (-center) + center;
     for(int z = 0 ; z < layers ; z++){
         for(int y = start_height ; y < end_height ; y++){
@@ -170,16 +196,19 @@ void CTDataset::rotate(const int &threashold){
                 if (a.x() < 0 || a.x() > 511) continue;
                 if (a.y() < 0 || a.y() > 511) continue;
                 if (a.z() < 0 || a.z() > 511) continue;
-
+                counter++;
                 m_pRotated [(int)a.x()+ 512*(int)a.y() + 512*512*(int)a.z()  ] =  orginalldata[512*512*z + 512*y + x];
-
+                maske[x+ 512 * y] = true;
             }
         }
     }
 
     layers = 512;
+
     m_pImageData = m_pRotated;
+    qDebug()<<"rotate:"<<timer.nsecsElapsed()<<" count "<< counter;
     calculateDepthBuffer(threashold);
+    layers = 130;
 }
 
 /**
@@ -193,10 +222,10 @@ void CTDataset::updateDrehMatrix(const int& x,const int& y,const int& z){
      int xAngle = x;
      int yAngle = y;
      int zAngle = z;
-     if(xAngle > 180) xAngle  = 360 - xAngle;
-     if(yAngle > 180) yAngle  = 360 - yAngle;
-     if(zAngle > 180) zAngle  = 360 - yAngle;
-     m_Rot =  Eigen::AngleAxisd(xAngle/180.*M_PI, Eigen::Vector3d::UnitX()) * m_Rot;
+     if(xAngle >= 180) xAngle  = xAngle - 360;
+     if(yAngle >= 180) yAngle  = yAngle - 360;
+     if(zAngle >= 180) zAngle  = zAngle - 360;
+     m_Rot =  Eigen::AngleAxisd(xAngle/180.*M_PI, Eigen::Vector3d::UnitX());
      m_Rot =  Eigen::AngleAxisd(yAngle/180.*M_PI, Eigen::Vector3d::UnitY()) * m_Rot;
      m_Rot =  Eigen::AngleAxisd(zAngle/180.*M_PI, Eigen::Vector3d::UnitZ()) * m_Rot;
 }

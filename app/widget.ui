@@ -328,7 +328,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>rotate back</string>
+    <string>orginall_State</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_crop">

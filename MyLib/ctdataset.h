@@ -16,7 +16,7 @@ public:
 
     ~CTDataset();
     static int windowing(int HU_value,int startValue,int windowWidth,int &greyValue);
-    int calculateDepthBuffer(const int&iThreshold);
+    int calculateDepthBuffer(const int &iThreshold);
     int renderDepthBuffer(short*shadedBuffer);
     void rotate(const int &threashold);
     void updateDrehMatrix(const int& xAngle, const int& yAngle, const int& zAngle);
@@ -28,6 +28,7 @@ private:
     int width,height,layers,start_width,start_height,end_width, end_height;
     short* tiefenBuffer;
     short* orginalldata;
+    bool* maske;
     bool loaded;
     short*  m_pRotated;
     Eigen::Matrix3d m_Rot;

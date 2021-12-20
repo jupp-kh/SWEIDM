@@ -174,19 +174,34 @@ bool Widget::segmentierung( int HU_value,int schwellenwert){
 void Widget::cropImage(){
     if(xMousePress >= 0 && yMousePress >= 0 && xMousePress < 512 && yMousePress <512 && xMouseRelease >= 0 && yMouseRelease >= 0 && xMouseRelease < 512 && yMouseRelease <512 ){
        dataset.corpping(std::min(xMousePress,xMouseRelease),std::min(yMousePress,yMouseRelease),std::max(xMousePress,xMouseRelease),std::max(xMousePress,xMouseRelease));
+       if(ui->checkBox_rotation->isChecked()){
+           render3D();
+       }else{
+           ui->checkBox_rotation->setChecked(true);
+           render3D();
+           ui->checkBox_rotation->setChecked(false);
+       }
     }else{
-        QMessageBox::critical(this, "ACHTUNG", "please select a rectangle");
+        QMessageBox::critical(this, "ACHTUNG", "please select a abox from the 3d_bild with mouse ");
     }
 }
 
 // in diese funktion wird mit ein zeiger auf die orginal daten gezeigt
 void Widget::rotateBack(){
     ui->verticalSlider_schichten->setMaximum(129);
+    ui->horizontalSlider_xaxis->setValue(0);
+    ui->horizontalSlider_yaxis->setValue(0);
+    ui->horizontalSlider_zaxis->setValue(0);
+    ui->checkBox_rotation->setChecked(false);
     dataset.rotateBack();
+    render3D();
+
 }
 
 void Widget::render3D(){
     //rechne den tiefen karte
+    QElapsedTimer all;
+    all.start();
     if (ui->checkBox_rotation->isChecked()){
         ui->verticalSlider_schichten->setMaximum(511);
         dataset.rotate(ui->horizontalSlider_schwellenwert->value());
@@ -195,6 +210,8 @@ void Widget::render3D(){
     }
     tiefenBufferEx = true;
     dataset.renderDepthBuffer(shadedBuffer);
+    QElapsedTimer timer;
+    timer.start();
     QImage image(512,512,QImage::Format_RGB32);
     image.fill(qRgb(0,0,0));
     int x,y,iGrauwert;
@@ -206,6 +223,9 @@ void Widget::render3D(){
     image.setPixel(x,y ,qRgb(iGrauwert, iGrauwert, iGrauwert));
 }
 ui->label_3D->setPixmap(QPixmap::fromImage(image));
+
+qDebug()<<"image:"<<timer.nsecsElapsed();
+qDebug()<<"rander time :"<<all.nsecsElapsed();
 }
 
 
