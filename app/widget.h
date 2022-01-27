@@ -27,10 +27,16 @@ private:
    // int windowing(int HU_value, int startValue, int windowWidth, int &greyValue);
     bool segmentierung( int HU_value, int schwellenwert);
     void updateSliceView();
+    void displayImage3D();
     int calculateDepthBuffer(short* inputData,int width, int height, int layers, int threashold,short* depthBuffer);
     CTDataset dataset;
-    bool tiefenBufferEx;
-    int xMousePress, yMousePress, xMouseRelease,yMouseRelease ;
+    bool tiefenBufferEx,confirm_start, confirm_end,confirmcrop, display_schablone;
+    Eigen::Vector3d MousePress3D;
+    Eigen::Vector3d MouseRelease3D;
+    Eigen::Vector3d MousePress2D;
+    Eigen::Vector3d start;
+    Eigen::Vector3d end;
+
 
 private slots:
     //void Malebild();
@@ -42,11 +48,22 @@ private slots:
     void updatedschwellenwert(int value);
     void updatedAxis();
     void cropImage();
-    void rotateBack();
+    void undocrop();
+    void orginallstate();
     void render3D();
+    void saveplan();
     void erzeugeTestData();
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void bohren();
+    void deletplan();
+    void schablone();
+    void confirmStart();
+    void confirmEnd();
+    void cropArea();
+    void saveschablone_raw();
+    void displaySchablone();
+
 };
 
 #endif // WIDGET_H

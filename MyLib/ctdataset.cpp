@@ -14,7 +14,8 @@ CTDataset::CTDataset()
 
     // Platzhalter für den gedrehten Datensatz
     m_pRotated = new short[512*512*512];
-
+    //
+    schablone_data = new short[40*40*40];
     maske = new bool[512*512];
 
     std::fill_n(maske,512*512,true);
@@ -26,10 +27,10 @@ CTDataset::CTDataset()
     //hardgecodet
     width = 512;
     height = 512;
-    end_width = 512;
-    end_height = 512;
-    start_width = 0;
-    start_height = 0;
+    croop[0] = 0;
+    croop[1] = 0;
+    croop[2] = 512;
+    croop[3] = 512;
     layers = 130;
     //drehen(1,2,3);
 
@@ -40,6 +41,7 @@ CTDataset::~CTDataset(){
     delete [] tiefenBuffer;
     delete [] m_pRotated;
     delete [] maske;
+    delete [] schablone_data;
 }
 
 /**
@@ -51,14 +53,14 @@ short* CTDataset::data(){
 }
 /**
  nimme die ursprünglische date */
-void CTDataset::rotateBack(){
+void CTDataset::orginallstate(){
     m_pImageData = orginalldata;
     layers = 130;
     std::fill_n(maske, width*height,true);
-    end_width = 512;
-    end_height = 512;
-    start_width = 0;
-    start_height = 0;
+    croop[0] = 0;
+    croop[1] = 0;
+    croop[2] = 512;
+    croop[3] = 512;
 }
 /**
   get methode für die private variabel depthbuffer
@@ -84,10 +86,35 @@ int CTDataset::load(QString imagePath){
     return 0;
 }
 /**
+ dieser funktion zum filteren das angabe\n
+ er schaut die benachbarten voxel und set the voxel auf dem mittlern wert
+*/
+void CTDataset::filterBild(){
+    for(int z = 0; z<layers; z++){
+        for(int y = 1 ; y<511; y++){
+            for(int x = 1; x<511; x++){
+                std::vector<short> vec(9);
+                vec[0] = orginalldata[(z*height* width)+(width*(y-1)) + (x-1) ];
+                vec[1] = orginalldata[(z*height* width)+(width*y) + (x-1) ];
+                vec[2] = orginalldata[(z*height* width)+(width*(y+1)) + (x-1) ];
+                vec[3] = orginalldata[(z*height* width)+(width*(y-1)) + (x-1) ];
+                vec[4] = orginalldata[(z*height* width)+(width*y) + x ];
+                vec[5] = orginalldata[(z*height* width)+(width*(y+1)) + (x+1) ];
+                vec[6] = orginalldata[(z*height* width)+(width*(y-1)) + (x+1) ];
+                vec[7] = orginalldata[(z*height* width)+(width*y) + (x+1) ];
+                vec[8] = orginalldata[(z*height* width)+(width*(y+1)) + (x+1) ];
+                std::sort(vec.begin(), vec.end());
+                orginalldata[(z*height* width)+(width*y) + x ] = vec[4];
+            }
+        }
+    }
+
+}
+/**
  * berechne die fenestrirung damit jeder gewebe angezeigt werden kann
  * @param HU_value grau wert in dem ursprünglich 0 - 4096
- * @param startvalue start value für die fenestrirung
- * @param windowWidth das intervall der fenestrirung
+ * @param startvalue start value für die fenestrirung [-1024 - 3071]
+ * @param windowWidth das intervall der fenestrirung [1 - 4095]
  * @param greyValue referenc zu die grau wert 0-255
  * @return fehler code.\n 0 : erfolgreich\n 1 : HU_value falsch \n 2 : start value falsch \n 3 : windowidth falsch.
 */
@@ -108,23 +135,36 @@ int CTDataset::windowing( int HU_value,  int startValue, int windowWidth, int &g
     greyValue = std::roundf((HU_value-startValue)*(255.0/windowWidth));
     return 0;
 }
-void CTDataset::corpping(const int start_x, const int start_y, const int end_x,const int end_y  ){
-    start_width = start_x;
-    start_height = start_y;
-    end_width = end_x;
-    end_height = end_y;
 
+
+/**
+dieser funktion setzt die cordinaten der cropping für weiter benuzung*/
+void CTDataset::corpping(const int start_x, const int start_y, const int end_x,const int end_y  ){
+
+    croop[0] = start_x;
+    croop[1] = start_y;
+    croop[2] = end_x;
+    croop[3] = end_y;
+
+}
+/**
+setzt die cropping zurück
+*/
+void CTDataset::undocrop(){
+    croop[0] = 0;
+    croop[1] = 0;
+    croop[2] = 512;
+    croop[3] = 512;
 }
 /** Mit dieser Funktion wird die Tiefe berechnet, damit das Bild in 3D angezeigt wird.
  *Sie geht durch den Datensatz und schaut, bei welchen Ebenen der Schwellenwert erreicht wird
  *und speichert die Tiefe in dem Array depthBuffer
- * @param threashold ist das schwellenwert
+ * @param threashold ist das schwellenwert -1024 -3071
  * @return fehler code.\n 0 : erfolgreich\n 1 : no data \n 2 : threashold bound fehler
 */
 int CTDataset::calculateDepthBuffer(const int &threashold){
     QElapsedTimer timer;
     timer.start();
-    int counter = 0;
     if(!loaded) return 1;
     if(threashold < -1024 || threashold >3071) return 2;
     int x;
@@ -134,12 +174,11 @@ int CTDataset::calculateDepthBuffer(const int &threashold){
 
             while(  ( m_pImageData[index+(x*width*height)]<threashold)&& x > 0 ){
                x--;
-               counter++;
             }
         }
         tiefenBuffer[index] = layers - 1 -x;
     }
-    qDebug()<<"calculatedepthbuffer:"<<timer.nsecsElapsed()<<" count "<< counter;
+    qDebug()<<"calculatedepthbuffer:"<<timer.nsecsElapsed();
     return  0;
 }
 /**
@@ -176,13 +215,20 @@ int CTDataset::renderDepthBuffer(short *shadedBuffer){
     return  0;
 
 }
+/**
+   * @param shadedBuffer arrey hat das 3d visualisiertes bild
+   * in dieser funktion wird das bild rotiert um den axien nach beliebten winkel
+*/
 
 void CTDataset::rotate(const int &threashold){
     QElapsedTimer timer;
     timer.start();
-    int counter= 0;
-    std::fill_n(maske,width*height,false);
     std::fill_n(m_pRotated, width*height*512, -1024);
+    //  set index von vor schleife falls das bild ausgeschnitten wird
+    int start_width = croop[0];
+    int start_height = croop[1];
+    int end_width = croop[2];
+    int end_height = croop[3];
     Eigen::Vector3d a;
     Eigen::Vector3d center(start_width + (end_width - start_width)/2,start_height + (end_height-start_height)/2,layers/2);
     Eigen::Vector3d rotatV = m_Rot * (-center) + center;
@@ -196,17 +242,16 @@ void CTDataset::rotate(const int &threashold){
                 if (a.x() < 0 || a.x() > 511) continue;
                 if (a.y() < 0 || a.y() > 511) continue;
                 if (a.z() < 0 || a.z() > 511) continue;
-                counter++;
                 m_pRotated [(int)a.x()+ 512*(int)a.y() + 512*512*(int)a.z()  ] =  orginalldata[512*512*z + 512*y + x];
                 maske[x+ 512 * y] = true;
             }
         }
     }
-
-    layers = 512;
-
+    if(!m_Rot.isIdentity()){
+         layers = 512;
+    }
     m_pImageData = m_pRotated;
-    qDebug()<<"rotate:"<<timer.nsecsElapsed()<<" count "<< counter;
+    qDebug()<<"rotate:"<<timer.nsecsElapsed();
     calculateDepthBuffer(threashold);
     layers = 130;
 }
@@ -219,13 +264,152 @@ this funktion is to update the rotation matrix an store the value untel we use i
 */
 
 void CTDataset::updateDrehMatrix(const int& x,const int& y,const int& z){
-     int xAngle = x;
-     int yAngle = y;
-     int zAngle = z;
-     if(xAngle >= 180) xAngle  = xAngle - 360;
-     if(yAngle >= 180) yAngle  = yAngle - 360;
-     if(zAngle >= 180) zAngle  = zAngle - 360;
-     m_Rot =  Eigen::AngleAxisd(xAngle/180.*M_PI, Eigen::Vector3d::UnitX());
-     m_Rot =  Eigen::AngleAxisd(yAngle/180.*M_PI, Eigen::Vector3d::UnitY()) * m_Rot;
-     m_Rot =  Eigen::AngleAxisd(zAngle/180.*M_PI, Eigen::Vector3d::UnitZ()) * m_Rot;
+     m_Rot =  Eigen::AngleAxisd(x/180.*M_PI, Eigen::Vector3d::UnitX());
+     m_Rot =  Eigen::AngleAxisd(y/180.*M_PI, Eigen::Vector3d::UnitY()) * m_Rot;
+     m_Rot =  Eigen::AngleAxisd(z/180.*M_PI, Eigen::Vector3d::UnitZ()) * m_Rot;
+}
+/**
+ geter ffür rotation matrix
+*/
+Eigen::Matrix3d CTDataset::get_rotatationMatrix(){
+    return m_Rot;
+}
+
+/**
+  @param start start punkt der bohrvector
+  @param end   end punkt der bohrvector
+  @param bohrDM bohrdurchmesse
+  in dieser funktion wird in dem data ein exploziert wert gesetzt \n
+ um spater die Böre lange und durchmesse zu wisualisieren
+*/
+void CTDataset::bohren(Eigen::Vector3d start, Eigen::Vector3d end, int bohrDM){
+
+   Eigen::Vector3d bohrvector = end - start;
+   Eigen::Vector3d bohrindex;
+   int n = std::sqrt(std::pow(bohrvector.x(),2)+std::pow(bohrvector.y(),2)+std::pow(bohrvector.z(),2));
+   Eigen::Vector3d nomiert = bohrvector/n;
+   for(int i = 0 ; i < n ; i++){
+        bohrindex = start + (i*nomiert);
+         for(int x = (int)bohrindex.x()- bohrDM ; x <= (int)bohrindex.x()+bohrDM ; x++){
+             for(int y = (int)bohrindex.y()- bohrDM ; y <= (int)bohrindex.y()+bohrDM ; y++){
+                 for(int z = (int)bohrindex.z()- bohrDM ;z <= (int)bohrindex.z()+bohrDM ; z++){
+                    if(std::pow((bohrindex.x() - x ),2) + std::pow((bohrindex.y() - y ),2) + std::pow((bohrindex.z() - z ),2) < bohrDM){
+                        if (x < 0 || x > 511) continue;
+                        if (y < 0 || y > 511) continue;
+                        if (z < 0 || z > 511) continue;
+                        m_pImageData[x+ 512*y + 512*512*z] = 10000;
+                    }
+                 }
+             }
+         }
+
+   }
+}
+
+
+
+/**
+  dieser funktion löscht die modifiziert data und set die data zu orginal
+*/
+void CTDataset::deletplan(){
+    m_pImageData = orginalldata;
+}
+
+/**
+  @param start start punkt der bohrvector
+  @param end end punkt der bohrvector
+  @param threashold ist das schwellenwert -1024 -3071
+dieser funktion rechnet die schablone surface
+
+*/
+Eigen::Vector3d CTDataset::schablone(Eigen::Vector3d start, Eigen::Vector3d end, const int &threashold){
+    Eigen::Vector3d center(512/ 2 , 512/ 2, 130/2);
+
+    std::fill_n(schablone_data,40*40*40,1);
+    Eigen::Vector3d bohrvector =   ( start - end ) ;
+
+    // save m_Rot; aktuelle zustand
+    Eigen::Matrix3d rot;
+    rot = m_Rot;
+    // lange von bohr vector
+    float n_xyz = std::sqrt(std::pow(bohrvector.x(),2)+std::pow(bohrvector.y(),2)+std::pow(bohrvector.z(),2));
+    // lange in zy ebene
+    float n_zy = std::sqrt(std::pow(bohrvector.y(),2)+std::pow(bohrvector.z(),2));
+
+
+
+    // set x to 0 in dem die vectro gedret um y
+    // die ecke hier ist zwischen bohrvector und das ebene ZY
+    float yzangle = -atan(bohrvector.x()/bohrvector.z());
+    // ecke in 2D zwischen behrvector und z axis
+    float zangle =  -acos(bohrvector.z()/n_zy) ;
+
+    // die rotation matrix zu visualisiern
+    m_Rot = Eigen::AngleAxisd(yzangle, Eigen::Vector3d::UnitY())* m_Rot;
+    m_Rot =  Eigen::AngleAxisd(zangle, Eigen::Vector3d::UnitX()) * m_Rot;
+
+
+
+    Eigen::Vector3d bohr_index = Eigen::AngleAxisd(yzangle, Eigen::Vector3d::UnitY())*Eigen::AngleAxisd(zangle, Eigen::Vector3d::UnitX())* (start -center ) + center ;
+    qDebug()<<yzangle<<zangle;
+
+    // nach rotation wird die routation matrix zurück gesetzt für weiter benuzung;
+    rotate(threashold);
+    m_Rot = rot;
+
+    // index von schablone
+    int s_x , s_y , s_z;
+    for (int x =((int)bohr_index.x() - 20); x < (int)bohr_index.x() + 20; x++) {
+        for (int y = ((int)bohr_index.y()-20); y < (int)bohr_index.y()+20; y++) {
+            for (int z = ((int)bohr_index.x()+30); z > (int)bohr_index.x()- 10; z--) {
+                if (x < 0 || x > 511) continue;
+                if (y < 0 || y > 511) continue;
+                if (z < 0 || z > 511) continue;
+                s_x = (x - (int)bohr_index.x()) + 20;
+                s_y = (y - (int)bohr_index.y()) + 20;
+                s_z = (z - (int)bohr_index.z()) + 10;
+                if(m_pImageData[x+ 512*y + 512*512*z] >= threashold){
+
+
+                for(int j = s_z; j < 40; j++){
+
+
+                    schablone_data[s_x + 40 * s_y + j *40*40] = 0;
+                }
+                break;
+                }
+
+            }
+        }
+    }
+
+    return bohr_index;
+
+}
+
+/**
+geter für schablone datat*/
+short* CTDataset::getschablone(){
+    return schablone_data;
+}
+
+/**
+diser funktion schreibt die schablone daten in großen array zum viszalisieren mit dem gleichen software;
+*/
+void CTDataset::displaySchablone(){
+    m_pImageData = m_pRotated;
+    int s_x,s_y,s_z;
+    for (int x = 0; x < 512; ++x) {
+        for (int y = 0; y < 512; ++y) {
+            for (int z = 0; z < 512; ++z) {
+                s_x = x/512.0 * 40;
+                s_y = y/512.0 * 40;
+                s_z = z/512.0 * 40 ;
+                  m_pImageData[x+ 512*y + 512*512*z] = schablone_data[s_x + 40 * s_y + s_z *40*40];
+
+
+            }
+        }
+    }
+    calculateDepthBuffer(1);
 }

@@ -1,0 +1,19 @@
+/**\mainpage
+*
+* Das ist meine erste Anleitung
+*
+*\section Overview
+*#CTDatasetist eine Referenz auf die Klasse
+*blablabla 
+*
+*\subsection LoadingImage Loading Image
+*Zuerst kommt Name, den man mit \refreferenzieren kann, z.B. \refLoadingImage, danach der Text, wie es angezeigt wird
+*
+*Hier ein Beispiel, wie man ein Bild einbinden kann
+*\image html screenshot.png
+*
+*\subsection Planung
+*
+* blabla(Eine Leerzeile einfügen für Zeilenumbruch)
+*
+*/

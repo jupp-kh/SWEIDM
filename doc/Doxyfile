@@ -961,6 +961,7 @@ RECURSIVE              = YES
 # run.
 
 EXCLUDE                = C:\Users\youss\Desktop\code\sweidmt_ws2022_youssef_kharita\doc
+EXCLUDE                = C:\Users\youss\Desktop\code\sweidmt_ws2022_youssef_kharita\eigen
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
