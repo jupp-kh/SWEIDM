@@ -141,7 +141,7 @@
   <widget class="QSlider" name="horizontalSlider_schwellenwert">
    <property name="geometry">
     <rect>
-     <x>820</x>
+     <x>860</x>
      <y>530</y>
      <width>251</width>
      <height>22</height>
@@ -170,7 +170,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>render3D:</string>
+    <string>schwellenwert:</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_render3d">
@@ -189,7 +189,7 @@
   <widget class="QLabel" name="label_3D">
    <property name="geometry">
     <rect>
-     <x>600</x>
+     <x>610</x>
      <y>0</y>
      <width>512</width>
      <height>512</height>
@@ -283,7 +283,7 @@
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>20</x>
      <y>590</y>
      <width>571</width>
      <height>211</height>
@@ -400,8 +400,8 @@
     <widget class="QPushButton" name="pushButton_undocrop">
      <property name="geometry">
       <rect>
-       <x>30</x>
-       <y>110</y>
+       <x>130</x>
+       <y>120</y>
        <width>91</width>
        <height>41</height>
       </rect>
@@ -413,7 +413,7 @@
     <widget class="QLabel" name="label_crop">
      <property name="geometry">
       <rect>
-       <x>310</x>
+       <x>160</x>
        <y>40</y>
        <width>151</width>
        <height>51</height>
@@ -426,8 +426,8 @@
     <widget class="QPushButton" name="pushButton_crop">
      <property name="geometry">
       <rect>
-       <x>30</x>
-       <y>40</y>
+       <x>20</x>
+       <y>120</y>
        <width>91</width>
        <height>41</height>
       </rect>
@@ -439,7 +439,7 @@
     <widget class="QPushButton" name="pushButton_croparea">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>10</x>
        <y>40</y>
        <width>111</width>
        <height>41</height>
@@ -464,30 +464,33 @@
       </rect>
      </property>
      <property name="text">
-      <string>delete plan</string>
+      <string>delete bohren</string>
      </property>
     </widget>
     <widget class="QSpinBox" name="spinBox_bohrDM">
      <property name="geometry">
       <rect>
-       <x>510</x>
-       <y>10</y>
-       <width>31</width>
+       <x>410</x>
+       <y>20</y>
+       <width>71</width>
        <height>31</height>
       </rect>
      </property>
      <property name="maximum">
       <number>100</number>
      </property>
-     <property name="value">
+     <property name="singleStep">
       <number>1</number>
+     </property>
+     <property name="value">
+      <number>5</number>
      </property>
     </widget>
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>410</x>
-       <y>20</y>
+       <x>310</x>
+       <y>10</y>
        <width>81</width>
        <height>21</height>
       </rect>
@@ -506,7 +509,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>display plan</string>
+      <string>display bohren</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_schablone">

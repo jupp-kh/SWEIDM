@@ -27,7 +27,7 @@ public:
     void filterBild();
     void bohren(Eigen::Vector3d start, Eigen::Vector3d end, int bohrDM);
     void deletplan();
-    Eigen::Vector3d  schablone(Eigen::Vector3d start, Eigen::Vector3d end, const int &iThreshold );
+    Eigen::Vector3d  schablone(Eigen::Vector3d start, Eigen::Vector3d end, const int &iThreshold , int bohrDM );
     void displaySchablone();
     Eigen::Matrix3d get_rotatationMatrix();
 

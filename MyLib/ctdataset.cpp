@@ -82,6 +82,7 @@ int CTDataset::load(QString imagePath){
     int iNumberBytesRead = dataFile.read((char*)orginalldata, 512*512*130*sizeof(short));
     if (iFileSize != iNumberBytesRead){return 1;}
     dataFile.close();
+    filterBild();
     loaded = true;
     return 0;
 }
@@ -90,6 +91,7 @@ int CTDataset::load(QString imagePath){
  er schaut die benachbarten voxel und set the voxel auf dem mittlern wert
 */
 void CTDataset::filterBild(){
+
     for(int z = 0; z<layers; z++){
         for(int y = 1 ; y<511; y++){
             for(int x = 1; x<511; x++){
@@ -97,9 +99,9 @@ void CTDataset::filterBild(){
                 vec[0] = orginalldata[(z*height* width)+(width*(y-1)) + (x-1) ];
                 vec[1] = orginalldata[(z*height* width)+(width*y) + (x-1) ];
                 vec[2] = orginalldata[(z*height* width)+(width*(y+1)) + (x-1) ];
-                vec[3] = orginalldata[(z*height* width)+(width*(y-1)) + (x-1) ];
+                vec[3] = orginalldata[(z*height* width)+(width*(y-1)) + x];
                 vec[4] = orginalldata[(z*height* width)+(width*y) + x ];
-                vec[5] = orginalldata[(z*height* width)+(width*(y+1)) + (x+1) ];
+                vec[5] = orginalldata[(z*height* width)+(width*(y+1)) + x ];
                 vec[6] = orginalldata[(z*height* width)+(width*(y-1)) + (x+1) ];
                 vec[7] = orginalldata[(z*height* width)+(width*y) + (x+1) ];
                 vec[8] = orginalldata[(z*height* width)+(width*(y+1)) + (x+1) ];
@@ -286,14 +288,14 @@ void CTDataset::bohren(Eigen::Vector3d start, Eigen::Vector3d end, int bohrDM){
 
    Eigen::Vector3d bohrvector = end - start;
    Eigen::Vector3d bohrindex;
-   int n = std::sqrt(std::pow(bohrvector.x(),2)+std::pow(bohrvector.y(),2)+std::pow(bohrvector.z(),2));
+   float n = std::sqrt(std::pow(bohrvector.x(),2)+std::pow(bohrvector.y(),2)+std::pow(bohrvector.z(),2));
    Eigen::Vector3d nomiert = bohrvector/n;
    for(int i = 0 ; i < n ; i++){
         bohrindex = start + (i*nomiert);
          for(int x = (int)bohrindex.x()- bohrDM ; x <= (int)bohrindex.x()+bohrDM ; x++){
              for(int y = (int)bohrindex.y()- bohrDM ; y <= (int)bohrindex.y()+bohrDM ; y++){
                  for(int z = (int)bohrindex.z()- bohrDM ;z <= (int)bohrindex.z()+bohrDM ; z++){
-                    if(std::pow((bohrindex.x() - x ),2) + std::pow((bohrindex.y() - y ),2) + std::pow((bohrindex.z() - z ),2) < bohrDM){
+                    if(std::pow((bohrindex.x() - x ),2) + std::pow((bohrindex.y() - y ),2) + std::pow((bohrindex.z() - z ),2) <=std::pow( bohrDM,2)){
                         if (x < 0 || x > 511) continue;
                         if (y < 0 || y > 511) continue;
                         if (z < 0 || z > 511) continue;
@@ -322,7 +324,7 @@ void CTDataset::deletplan(){
 dieser funktion rechnet die schablone surface
 
 */
-Eigen::Vector3d CTDataset::schablone(Eigen::Vector3d start, Eigen::Vector3d end, const int &threashold){
+Eigen::Vector3d CTDataset::schablone(Eigen::Vector3d start, Eigen::Vector3d end, const int &threashold, int bohrDM){
     Eigen::Vector3d center(512/ 2 , 512/ 2, 130/2);
 
     std::fill_n(schablone_data,40*40*40,1);
@@ -331,8 +333,6 @@ Eigen::Vector3d CTDataset::schablone(Eigen::Vector3d start, Eigen::Vector3d end,
     // save m_Rot; aktuelle zustand
     Eigen::Matrix3d rot;
     rot = m_Rot;
-    // lange von bohr vector
-    float n_xyz = std::sqrt(std::pow(bohrvector.x(),2)+std::pow(bohrvector.y(),2)+std::pow(bohrvector.z(),2));
     // lange in zy ebene
     float n_zy = std::sqrt(std::pow(bohrvector.y(),2)+std::pow(bohrvector.z(),2));
 
@@ -349,41 +349,49 @@ Eigen::Vector3d CTDataset::schablone(Eigen::Vector3d start, Eigen::Vector3d end,
     m_Rot =  Eigen::AngleAxisd(zangle, Eigen::Vector3d::UnitX()) * m_Rot;
 
 
-
-    Eigen::Vector3d bohr_index = Eigen::AngleAxisd(yzangle, Eigen::Vector3d::UnitY())*Eigen::AngleAxisd(zangle, Eigen::Vector3d::UnitX())* (start -center ) + center ;
+    start = Eigen::AngleAxisd(yzangle, Eigen::Vector3d::UnitY())*Eigen::AngleAxisd(zangle, Eigen::Vector3d::UnitX())* (start -center ) + center ;
+    end = Eigen::AngleAxisd(yzangle, Eigen::Vector3d::UnitY())*Eigen::AngleAxisd(zangle, Eigen::Vector3d::UnitX())* (start -center ) + center ;
+    bohrvector = end -start;
+    float n = std::sqrt(std::pow(bohrvector.x(),2)+std::pow(bohrvector.y(),2)+std::pow(bohrvector.z(),2));
+    Eigen::Vector3d nomiert = bohrvector/n;
+    Eigen::Vector3d bohr_index;
     qDebug()<<yzangle<<zangle;
 
     // nach rotation wird die routation matrix zurück gesetzt für weiter benuzung;
     rotate(threashold);
+    bohren(start, end , bohrDM);
     m_Rot = rot;
+    //versuch
+    for (int x = -20; x < 20; x++) {
+        for(int y = -20 ; y < 20 ; y++){
+            for(int z = 0 ; z < 10 ; z++){
+                Eigen::Vector3d xy(x,y,0);
+                bohr_index =  start + (z*nomiert) + xy ;
 
-    // index von schablone
-    int s_x , s_y , s_z;
-    for (int x =((int)bohr_index.x() - 20); x < (int)bohr_index.x() + 20; x++) {
-        for (int y = ((int)bohr_index.y()-20); y < (int)bohr_index.y()+20; y++) {
-            for (int z = ((int)bohr_index.x()+30); z > (int)bohr_index.x()- 10; z--) {
-                if (x < 0 || x > 511) continue;
-                if (y < 0 || y > 511) continue;
-                if (z < 0 || z > 511) continue;
-                s_x = (x - (int)bohr_index.x()) + 20;
-                s_y = (y - (int)bohr_index.y()) + 20;
-                s_z = (z - (int)bohr_index.z()) + 10;
-                if(m_pImageData[x+ 512*y + 512*512*z] >= threashold){
+                if(schablone_data[(x+20) + 40 *(y +20) + (z+30) *40*40] == 0) break;
+                if ((int)bohr_index.x() < 0 || (int)bohr_index.x()> 511) continue;
+                if ((int)bohr_index.y() < 0 || (int)bohr_index.y() > 511) continue;
+                if ((int)bohr_index.z() < 0 ||(int)bohr_index.z() > 511) continue;
+                if(m_pImageData[(int)bohr_index.x()+ 512*(int)bohr_index.y() + 512*512*(int)bohr_index.z()] >= threashold ){
+                    qDebug()<<m_pImageData[(int)bohr_index.x()+ 512*(int)bohr_index.y() + 512*512*(int)bohr_index.z()];
+                    int j_1 = z+30;
+                    if (m_pImageData[(int)bohr_index.x()+ 512*(int)bohr_index.y() + 512*512*(int)bohr_index.z()] == 10000) j_1 = 0;
+                    for(int j = j_1; j < 40; j++){
 
 
-                for(int j = s_z; j < 40; j++){
-
-
-                    schablone_data[s_x + 40 * s_y + j *40*40] = 0;
+                        schablone_data[(x+20) + 40 *(y +20) + j *40*40] = 0;
+                    }
+                    break;
                 }
-                break;
-                }
-
             }
         }
     }
 
-    return bohr_index;
+
+
+
+
+    return start;
 
 }
 

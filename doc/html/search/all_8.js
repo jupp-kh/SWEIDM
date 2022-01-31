@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['widget_0',['Widget',['../class_ui_1_1_widget.html',1,'Ui::Widget'],['../class_widget.html',1,'Widget'],['../class_widget.html#ace1aa23652eb4425355a81760b39fd37',1,'Widget::Widget()']]],
-  ['windowing_1',['windowing',['../class_c_t_dataset.html#a253584927577fbdced2047027f3afd71',1,'CTDataset']]],
-  ['windowingtest_2',['windowingTest',['../class_my_lib_unit_test.html#a2341595287b369e6cc648e04aa45b842',1,'MyLibUnitTest']]]
+  ['qt_5fmeta_5fstringdata_5fwidget_5ft_0',['qt_meta_stringdata_Widget_t',['../structqt__meta__stringdata___widget__t.html',1,'']]]
 ];

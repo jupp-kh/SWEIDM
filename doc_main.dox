@@ -1,19 +1,36 @@
-/**\mainpage
+/** \mainpage
 *
-* Das ist meine erste Anleitung
+* In diese software geht es darum CT bilder zu laden und anzeigen\n
+* Dabei werden die bilder entweder schichtweise oder mit 3d ansicht dargestellt\n 
+* Darüberhinaus kann das 3d Ansicht um die drei hauptrichtungen gedreht\n
+* Zusäztlich erfölgt das programm über eine operation plannung unterstützung.\n
+* Die palnungen der operationen die diese software ermögicht sind die operationen\n
+* am knochen wo da ein  bohrung im knochen vorliegt.\n 
+* So das system veranschalicht die bohren lange un breite und am endee stellt\n 
+* ein schablone die durch ein 3D drücker zum einsatzt dargestellt wird\n   
 *
-*\section Overview
-*#CTDatasetist eine Referenz auf die Klasse
-*blablabla 
+*\sectionOverview
+* #CTDataset ist eine Referenz auf die Klasse der zuständig für daten bearbeitung und die notwendige berchnung 
+* #Widget ist eim Referenz auf die Klasse der zuständig für die schnittstelle zwischen die Ctdata set und die GUI  
+* 
 *
-*\subsection LoadingImage Loading Image
-*Zuerst kommt Name, den man mit \refreferenzieren kann, z.B. \refLoadingImage, danach der Text, wie es angezeigt wird
+* hier ist ein beispiel über das interface
+* \image html interface.png
 *
-*Hier ein Beispiel, wie man ein Bild einbinden kann
-*\image html screenshot.png
+* \subsection LoadingImage Image darstellung 
+* 
 *
-*\subsection Planung
+* Hier ein Beispiel,
+* wie die Bilder dargestellt wird 
+* \image html Screenshot.png
 *
-* blabla(Eine Leerzeile einfügen für Zeilenumbruch)
+*\subsection Rotation Rotation
+*
+* die rote box ist die eingabe parameter zum rotation 
+*\image html rotation.png
+*
+*\subsection Bohr Bohr länge und durchmesse 
+*
+*\image html bohren.png
 *
 */

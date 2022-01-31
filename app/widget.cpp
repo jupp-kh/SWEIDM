@@ -139,10 +139,11 @@ void Widget::load_3d(){
 
     //try to load
     int iErrorCode = dataset.load(imagePath);
-    dataset.filterBild();
 
-    if (iErrorCode == 0)
+
+    if (iErrorCode == 0){
         updateSliceView();
+    }
     else if (iErrorCode == 1 )
         QMessageBox::critical(this, "ACHTUNG", "File Not Found");
     else
@@ -161,10 +162,10 @@ void Widget::updatedschichtnummer(int value){
     updateSliceView();
 }
 void Widget::updatedschwellenwert(int value){
-    ui->label_schwellenwert->setText("render3D:" + QString::number(value));
+    ui->label_schwellenwert->setText("Schwellenwert:" + QString::number(value));
     updateSliceView();
 }
-void Widget::updatedAxis(){
+void Widget::   updatedAxis(){
     ui->label_xaxis->setText("x_axis: " + QString::number(ui->horizontalSlider_xaxis->value()));
     ui->label_yaxis->setText("y_axis: " + QString::number(ui->horizontalSlider_yaxis->value()));
     ui->label_zaxis->setText("z_axis: " + QString::number(ui->horizontalSlider_zaxis->value()));
@@ -274,10 +275,25 @@ void Widget::saveplan(){
         Eigen::Vector3d center(512/2,512/2,130/2);
         MousePress2D = dataset.get_rotatationMatrix()*(MousePress2D - center ) +center;
         MousePress3D = dataset.get_rotatationMatrix()*(MousePress3D - center ) +center;
+        Eigen::Vector3d bohrvector = end -start ;
+        int n = std::sqrt(std::pow(bohrvector.x(),2)+std::pow(bohrvector.y(),2)+std::pow(bohrvector.z(),2));
         QTextStream out(&file);
             out << "start: " << MousePress3D.x() << " , "<< MousePress3D.y() << Qt::endl;
             out << "end: " << MousePress3D.x() << " , " << MousePress2D.y() << Qt::endl;
-            out << "Durschmesser: " << ui->spinBox_bohrDM->value();
+            out << "Durschmesser: " << ui->spinBox_bohrDM->value()<< Qt::endl;
+            out << "bohrlange: " << n<< Qt::endl;
+            out << "schablone:" << Qt::endl;
+            for (int z = 0; z <40 ;z++) {
+                for (int y = 0; y<40 ;y++) {
+                    for (int x = 0; x <40 ;x++) {
+                        out << dataset.getschablone()[x + y*40 + z*40*40] << " ";
+                    }
+                    out << Qt::endl;
+                }
+                out << Qt::endl;
+            }
+
+
             file.close();}
 }
 void Widget::cropImage(){
@@ -393,14 +409,18 @@ void Widget::displaySchablone(){
 void Widget::schablone(){
     if(confirm_start && confirm_end){
         qDebug()<<"in schablone";
-        start = dataset.schablone(start,end,ui->horizontalSlider_schwellenwert->value());
-        confirm_end = false;
-        updateSliceView();
+        Eigen::Vector3d s = start;
+        start = dataset.schablone(start,end,ui->horizontalSlider_schwellenwert->value(),ui->spinBox_bohrDM->value());
 
+        updateSliceView();
+        confirm_end = false;
         tiefenBufferEx = true;
         dataset.renderDepthBuffer(shadedBuffer);
         displayImage3D();
+        start = s;
         confirm_start =false;
+
+
     }else{
          QMessageBox::critical(this, "ACHTUNG", "please confirm the start and end point");
     }

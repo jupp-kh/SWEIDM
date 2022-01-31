@@ -95,33 +95,50 @@ $(function() {
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>   <span class="comment">// int windowing(int HU_value, int startValue, int windowWidth, int &amp;greyValue);</span></div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keywordtype">bool</span> segmentierung( <span class="keywordtype">int</span> HU_value, <span class="keywordtype">int</span> schwellenwert);</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <span class="keywordtype">void</span> updateSliceView();</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <span class="keywordtype">int</span> calculateDepthBuffer(<span class="keywordtype">short</span>* inputData,<span class="keywordtype">int</span> width, <span class="keywordtype">int</span> height, <span class="keywordtype">int</span> layers, <span class="keywordtype">int</span> threashold,<span class="keywordtype">short</span>* depthBuffer);</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <a class="code hl_class" href="class_c_t_dataset.html">CTDataset</a> dataset;</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <span class="keywordtype">bool</span> tiefenBufferEx;</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keywordtype">int</span> xMousePress, yMousePress, xMouseRelease,yMouseRelease ;</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="keyword">private</span> slots:</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="comment">//void Malebild();</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="comment">//void load_12bit();</span></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keywordtype">void</span> load_3d();</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keywordtype">void</span> updatedWindowingStart(<span class="keywordtype">int</span> value);</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keywordtype">void</span> updatedWindowingWidth(<span class="keywordtype">int</span> value);</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keywordtype">void</span> updatedschichtnummer(<span class="keywordtype">int</span> value);</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keywordtype">void</span> updatedschwellenwert(<span class="keywordtype">int</span> value);</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keywordtype">void</span> updatedAxis();</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keywordtype">void</span> cropImage();</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordtype">void</span> rotateBack();</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">void</span> render3D();</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordtype">void</span> erzeugeTestData();</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordtype">void</span> mousePressEvent(QMouseEvent *event);</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordtype">void</span> mouseReleaseEvent(QMouseEvent *event);</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>};</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="preprocessor">#endif </span><span class="comment">// WIDGET_H</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <span class="keywordtype">void</span> displayImage3D();</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <span class="keywordtype">int</span> calculateDepthBuffer(<span class="keywordtype">short</span>* inputData,<span class="keywordtype">int</span> width, <span class="keywordtype">int</span> height, <span class="keywordtype">int</span> layers, <span class="keywordtype">int</span> threashold,<span class="keywordtype">short</span>* depthBuffer);</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <a class="code hl_class" href="class_c_t_dataset.html">CTDataset</a> dataset;</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keywordtype">bool</span> tiefenBufferEx,confirm_start, confirm_end,confirmcrop, display_schablone;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    Eigen::Vector3d MousePress3D;</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    Eigen::Vector3d MouseRelease3D;</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    Eigen::Vector3d MousePress2D;</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    Eigen::Vector3d start;</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    Eigen::Vector3d end;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keyword">private</span> slots:</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="comment">//void Malebild();</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="comment">//void load_12bit();</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keywordtype">void</span> load_3d();</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordtype">void</span> updatedWindowingStart(<span class="keywordtype">int</span> value);</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">void</span> updatedWindowingWidth(<span class="keywordtype">int</span> value);</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordtype">void</span> updatedschichtnummer(<span class="keywordtype">int</span> value);</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordtype">void</span> updatedschwellenwert(<span class="keywordtype">int</span> value);</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordtype">void</span> updatedAxis();</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keywordtype">void</span> cropImage();</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordtype">void</span> undocrop();</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keywordtype">void</span> orginallstate();</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">void</span> render3D();</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">void</span> saveplan();</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordtype">void</span> erzeugeTestData();</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">void</span> mousePressEvent(QMouseEvent *event);</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">void</span> mouseReleaseEvent(QMouseEvent *event);</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordtype">void</span> bohren();</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordtype">void</span> deletplan();</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">void</span> schablone();</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordtype">void</span> confirmStart();</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">void</span> confirmEnd();</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordtype">void</span> cropArea();</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordtype">void</span> saveschablone_raw();</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordtype">void</span> displaySchablone();</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>};</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="preprocessor">#endif </span><span class="comment">// WIDGET_H</span></div>
 <div class="ttc" id="aclass_c_t_dataset_html"><div class="ttname"><a href="class_c_t_dataset.html">CTDataset</a></div><div class="ttdef"><b>Definition:</b> ctdataset.h:9</div></div>
-<div class="ttc" id="aclass_ui_1_1_widget_html"><div class="ttname"><a href="class_ui_1_1_widget.html">Ui::Widget</a></div><div class="ttdef"><b>Definition:</b> ui_widget.h:190</div></div>
+<div class="ttc" id="aclass_ui_1_1_widget_html"><div class="ttname"><a href="class_ui_1_1_widget.html">Ui::Widget</a></div><div class="ttdef"><b>Definition:</b> ui_widget.h:272</div></div>
 <div class="ttc" id="aclass_widget_html"><div class="ttname"><a href="class_widget.html">Widget</a></div><div class="ttdef"><b>Definition:</b> widget.h:18</div></div>
-<div class="ttc" id="aclass_widget_html_ace1aa23652eb4425355a81760b39fd37"><div class="ttname"><a href="class_widget.html#ace1aa23652eb4425355a81760b39fd37">Widget::Widget</a></div><div class="ttdeci">Widget(QWidget *parent=nullptr)</div><div class="ttdef"><b>Definition:</b> widget.cpp:14</div></div>
+<div class="ttc" id="aclass_widget_html_ace1aa23652eb4425355a81760b39fd37"><div class="ttname"><a href="class_widget.html#ace1aa23652eb4425355a81760b39fd37">Widget::Widget</a></div><div class="ttdeci">Widget(QWidget *parent=nullptr)</div><div class="ttdef"><b>Definition:</b> widget.cpp:12</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

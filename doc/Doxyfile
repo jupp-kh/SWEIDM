@@ -960,7 +960,6 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = C:\Users\youss\Desktop\code\sweidmt_ws2022_youssef_kharita\doc
 EXCLUDE                = C:\Users\youss\Desktop\code\sweidmt_ws2022_youssef_kharita\eigen
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
@@ -1014,7 +1013,8 @@ EXAMPLE_RECURSIVE      = NO
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             =
+IMAGE_PATH             = screenshot/Screenshot.png \
+                         screenshot
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
